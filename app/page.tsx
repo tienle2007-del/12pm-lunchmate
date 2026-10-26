@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Home, Globe, Heart, MessageSquare, User, Clock, MapPin, 
-  Send, ArrowLeft, Bot, Search, Utensils, Coffee, Laptop, Smile, Footprints, Bike, Bus, Share2, Lock, Mail, LogOut, CheckCircle2, ChevronRight, Bookmark, ShieldCheck, Trash2, Navigation
+  Send, ArrowLeft, Bot, Search, Utensils, Coffee, Laptop, Smile, Footprints, Bike, Bus, Share2, Lock, Mail, LogOut, CheckCircle2, ChevronRight, Bookmark, ShieldCheck, Trash2, Navigation, ExternalLink
 } from 'lucide-react';
 
 export default function LunchMateApp() {
@@ -22,7 +22,7 @@ export default function LunchMateApp() {
   const [matchMode, setMatchMode] = useState<'group' | 'duo'>('group');
   const [purpose, setPurpose] = useState('deadline');
   const [budget, setBudget] = useState('35k');
-  const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.3)');
+  const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.1)');
 
   const [chatSubView, setChatSubView] = useState<'menu' | 'group' | 'direct_list' | 'direct_detail'>('menu');
   const [selectedPlaceForNav, setSelectedPlaceForNav] = useState<any>(null);
@@ -33,35 +33,36 @@ export default function LunchMateApp() {
   const [groupInput, setGroupInput] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
 
+  // DANH SÁCH CƠ SỞ UEH ĐA CẬP NHẬT CHUẨN ĐỊA CHỈ
   const campuses = [
-    { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu (Q.3)', district: 'Q.3' },
+    { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu (Q.1)', district: 'Q.1' },
     { id: 'B', name: 'Cơ sở B - Nguyễn Tri Phương (Q.10)', district: 'Q.10' },
-    { id: 'N', name: 'Cơ sở N - Nguyễn Văn Linh (Bình Chánh)', district: 'Bình Chánh' },
     { id: 'C', name: 'Cơ sở C - 3 Tháng 2 (Q.10)', district: 'Q.10' },
-    { id: 'E', name: 'Cơ sở E - Nguyễn Văn Thủ (Q.1)', district: 'Q.1' },
-    { id: 'V', name: 'Cơ sở V - Võ Thị Sáu (Q.3)', district: 'Q.3' }
+    { id: 'N', name: 'Cơ sở N - Nguyễn Văn Linh (Bình Chánh)', district: 'Bình Chánh' },
+    { id: 'H', name: 'Cơ sở H - Hoàng Văn Thụ (Phú Nhuận)', district: 'Phú Nhuận' }
   ];
 
-  // DANH SÁCH ĐỊA ĐIỂM ĐA DẠNG THEO TỪNG QUẬN / CAMPUS
+  // DANH SÁCH ĐỊA ĐIỂM
   const allPlaces = [
-    // KHU VỰC QUẬN 3 (GẦN CS A, CS V)
     { 
       id: 1, 
       name: 'The Coffee House - Trần Cao Vân', 
       type: 'Cà phê & Deadline', 
-      district: 'Q.3', 
+      district: 'Q.1', 
       price: '35k', 
+      address: 'The Coffee House Trần Cao Vân Quận 1',
       desc: 'Không gian rộng rãi, nhiều ổ cắm điện, wifi cực nhanh.',
       walk: 'Rẽ trái cổng CS A 100m, đi thẳng đường Trần Cao Vân 2 phút là tới.',
       bike: 'Chạy thẳng Trần Cao Vân 1 phút, gửi xe ngay bãi trước quán.',
-      bus: 'Đón bus 150 dừng trạm Bưu điện Q.3, đi bộ 2 phút.'
+      bus: 'Đón bus 150 dừng trạm Bưu điện Q.1, đi bộ 2 phút.'
     },
     { 
       id: 2, 
       name: 'Cơm Tấm Ba Cường', 
       type: 'Cơm tấm', 
-      district: 'Q.3', 
+      district: 'Q.1', 
       price: '35k', 
+      address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 1',
       desc: 'Sườn nướng thơm phức, sát vách Cơ sở A.',
       walk: 'Từ cổng CS A rẽ phải 50m là tới quán.',
       bike: 'Gửi xe tại bãi CS A rồi đi bộ 10 giây.',
@@ -69,71 +70,47 @@ export default function LunchMateApp() {
     },
     { 
       id: 3, 
-      name: 'Cà Phê Trứng Bưu Điện Q.3', 
-      type: 'Cà phê & Luyện nói', 
-      district: 'Q.3', 
-      price: '35k', 
-      desc: 'Góc chill ngắm phố, cực thích hợp luyện Speaking.',
-      walk: 'Từ CS V đi bộ về hướng Bưu điện Q.3 tầm 4 phút.',
-      bike: 'Gửi xe bãi Bưu điện Q.3 2 phút.',
-      bus: 'Xe buýt 03 dừng ngay trạm Võ Thị Sáu.'
-    },
-    { 
-      id: 4, 
-      name: 'Bún Thịt Nướng Chị Tuyền', 
-      type: 'Ăn trưa bình dân', 
-      district: 'Q.3', 
-      price: '35k', 
-      desc: 'Thịt nướng đậm đà, chả gióm giòn rụm, đông sinh viên UEH.',
-      walk: 'Từ CS A đi bộ vào hẻm Nguyễn Đình Chiểu 3 phút.',
-      bike: 'Chạy xe máy 1 phút vào hẻm, có chỗ giữ xe miễn phí.',
-      bus: 'Dừng trạm Nguyễn Đình Chiểu đi bộ 2 phút.'
-    },
-
-    // KHU VỰC QUẬN 10 (GẦN CS B, CS C)
-    { 
-      id: 5, 
       name: 'Highlands Coffee N2TP', 
       type: 'Cà phê & Deadline', 
       district: 'Q.10', 
       price: '35k', 
+      address: 'Highlands Coffee Nguyễn Tri Phương Quận 10',
       desc: 'Đối diện CS B, máy lạnh mát rượi, chỗ ngồi cày bài nhóm.',
       walk: 'Băng qua vạch sang đường đối diện cổng CS B.',
       bike: 'Gửi xe hầm CS B rồi sang đường.',
       bus: 'Các tuyến bus đi qua N2TP dừng ngay trước quán.'
     },
     { 
-      id: 6, 
+      id: 4, 
       name: 'Gà Rán Cấp Cấp - Đào Duy Từ', 
       type: 'Ăn nhanh & Tám chuyện', 
       district: 'Q.10', 
       price: '25k', 
+      address: 'Đào Duy Từ Quận 10',
       desc: 'Gà giòn cay xè, nước ngọt refill thỏa thích gần CS B.',
       walk: 'Rẽ phải từ cổng CS B đi bộ 3 phút vào đường Đào Duy Từ.',
       bike: 'Chạy xe 1 phút, gửi xe trước cửa quán.',
       bus: 'Xuống trạm Nguyễn Tri Phương đi bộ 2 phút.'
     },
-
-    // KHU VỰC QUẬN 1 (GẦN CS E)
     { 
-      id: 7, 
-      name: 'Katinat Nguyễn Văn Thủ', 
-      type: 'Cà phê & Chill', 
-      district: 'Q.1', 
+      id: 5, 
+      name: 'Phở Phú Vương - Hoàng Văn Thụ', 
+      type: 'Phở & Ăn trưa', 
+      district: 'Phú Nhuận', 
       price: '50k', 
-      desc: 'View ngã tư xịn xò, trà sữa ô long đậm vị sát CS E.',
-      walk: 'Đi bộ từ CS E tầm 20m ngay góc đường.',
-      bike: 'Gửi xe ngay bãi xe CS E rồi bước sang.',
-      bus: 'Bus 03, 31 dừng ngay Nguyễn Văn Thủ.'
+      address: 'Phở Phú Vương Hoàng Văn Thụ Phú Nhuận',
+      desc: 'Nước dùng đậm đà, sát vách Cơ sở H Phú Nhuận.',
+      walk: 'Từ cổng CS H rẽ trái 30m là tới quán.',
+      bike: 'Gửi xe tại bãi CS H rồi đi bộ 20 giây.',
+      bus: 'Trạm bus Hoàng Văn Thụ ngay phía trước.'
     },
-
-    // KHU VỰC BÌNH CHÁNH (GẦN CS N)
     { 
-      id: 8, 
+      id: 6, 
       name: 'Urban Station CS N', 
       type: 'Cà phê & Bàn rộng', 
       district: 'Bình Chánh', 
       price: '35k', 
+      address: 'Đại học UEH Cơ sở N Nguyễn Văn Linh Bình Chánh',
       desc: 'Khuôn viên xanh mát rộng rãi nội khu Campus N.',
       walk: 'Ngay trong khuôn viên CS N, đi bộ 1 phút từ sảnh chính.',
       bike: 'Gửi xe bãi CS N.',
@@ -150,10 +127,8 @@ export default function LunchMateApp() {
     { id: 'mon-moi', label: 'Thử món & Quán mới', sub: 'Săn quán hot sinh viên', icon: Utensils, bg: 'bg-amber-50', text: 'text-amber-700' }
   ];
 
-  // LẤY QUẬN ĐANG CHỌN TỪ CAMPUS
-  const currentDistrict = campuses.find(c => c.name === selectedCampus)?.district || 'Q.3';
+  const currentDistrict = campuses.find(c => c.name === selectedCampus)?.district || 'Q.1';
 
-  // LỌC ĐỊA ĐIỂM: ĐẶT CÁC ĐỊA ĐIỂM THUỘC QUẬN GẦN BẠN LÊN ĐẦU
   const filteredPlaces = [...allPlaces].sort((a, b) => {
     if (a.district === currentDistrict && b.district !== currentDistrict) return -1;
     if (a.district !== currentDistrict && b.district === currentDistrict) return 1;
@@ -229,6 +204,12 @@ export default function LunchMateApp() {
       setChatSubView('menu');
       setActiveTab('match');
     }
+  };
+
+  // MỞ ĐƯỜNG ĐI TRÊN GOOGLE MAPS
+  const handleOpenGoogleMaps = (placeName: string) => {
+    const query = encodeURIComponent(placeName);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
   };
 
   const handleSharePlaceToChat = () => {
@@ -472,7 +453,7 @@ export default function LunchMateApp() {
             </div>
           )}
 
-          {/* TAB 3: KHÁM PHÁ (TỰ ĐỘNG LỌC ĐỊA ĐIỂM GẦN KHU VỰC DỰA THEO CAMPUS) */}
+          {/* TAB 3: KHÁM PHÁ */}
           {activeTab === 'explore' && (
             <div className="p-5 space-y-4">
               <div>
@@ -483,7 +464,6 @@ export default function LunchMateApp() {
                 <p className="text-xs text-slate-500">Chạm vào địa điểm để xem chỉ đường & gửi vào nhóm Chat</p>
               </div>
 
-              {/* BỘ LỌC CƠ SỞ ĐIỀU CHỈNH NHANH */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                 <span className="text-[10px] font-bold text-slate-400 uppercase whitespace-nowrap">Đổi Campus:</span>
                 {campuses.map(c => (
@@ -703,7 +683,7 @@ export default function LunchMateApp() {
 
         </main>
 
-        {/* MODAL XEM ĐƯỜNG ĐI */}
+        {/* MODAL XEM ĐƯỜNG ĐI & NÚT MỞ GOOGLE MAPS */}
         {selectedPlaceForNav && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center p-0 sm:p-4">
             <div className="bg-white w-full max-w-md rounded-t-3xl p-5 space-y-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom">
@@ -735,6 +715,14 @@ export default function LunchMateApp() {
                   {navMode === 'bus' && selectedPlaceForNav.bus}
                 </p>
               </div>
+
+              {/* NÚT MỞ GOOGLE MAPS TRỰC TIẾP */}
+              <button 
+                onClick={() => handleOpenGoogleMaps(selectedPlaceForNav.address || selectedPlaceForNav.name)}
+                className="w-full py-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-2xl border border-sky-200 flex items-center justify-center gap-2 transition"
+              >
+                <ExternalLink className="w-4 h-4" /> Mở vị trí trên Google Maps 🗺️
+              </button>
 
               <button 
                 onClick={handleSharePlaceToChat} 
