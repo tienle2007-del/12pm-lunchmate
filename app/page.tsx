@@ -7,16 +7,19 @@ import {
 } from 'lucide-react';
 
 export default function LunchMateApp() {
-  // Authentication State
+  // Authentication State (ĐỂ TRỐNG ĐỂ NGƯỜI DÙNG TỰ NHẬP)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [emailInput, setEmailInput] = useState('khanhvy.k52@st.ueh.edu.vn');
-  const [passwordInput, setPasswordInput] = useState('••••••••');
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
+
+  // Tên hiển thị & Khóa học trích xuất tự động từ Email
+  const [studentName, setStudentName] = useState('');
+  const [studentCohort, setStudentCohort] = useState('K52');
 
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState('match');
   const [matchMode, setMatchMode] = useState<'group' | 'duo'>('group');
-  const [timeSlot, setTimeSlot] = useState('11:30 - 12:00');
   const [purpose, setPurpose] = useState('deadline');
   const [budget, setBudget] = useState('35k');
   const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.3)');
@@ -104,49 +107,67 @@ export default function LunchMateApp() {
     }
   };
 
+  // Xử lý Đăng nhập Mail UEH
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = emailInput.trim().toLowerCase();
+
     if (!cleanEmail.endsWith('@st.ueh.edu.vn')) {
-      setLoginError('Vui lòng sử dụng Email Sinh viên UEH có đuôi @st.ueh.edu.vn!');
+      setLoginError('Vui lòng nhập đúng Email Sinh viên UEH có đuôi @st.ueh.edu.vn!');
       return;
     }
     if (passwordInput.length < 4) {
       setLoginError('Mật khẩu phải chứa ít nhất 4 ký tự!');
       return;
     }
+
+    // Tách tên từ email
+    const username = cleanEmail.split('@')[0]; // Ví dụ: "khanhvy.k52"
+    const parts = username.split('.');
+    
+    let displayName = parts[0];
+    displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+    
+    let cohort = 'K52';
+    if (parts.length > 1 && parts[1].toLowerCase().startsWith('k')) {
+      cohort = parts[1].toUpperCase();
+    }
+
+    setStudentName(displayName);
+    setStudentCohort(cohort);
     setLoginError('');
     setIsLoggedIn(true);
   };
 
   const handleStartMatch = () => {
     const campusShort = selectedCampus.split('-')[0].trim();
+    const name = studentName || 'Sinh viên UEH';
     let initialMsgs: any[] = [];
 
     if (purpose === 'deadline') {
       initialMsgs = [
         { id: 1, text: `🎉 Nhóm cày deadline tại ${campusShort} đã được ghép nối thành công!`, isSystem: true },
-        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Chào Khánh Vy & team! Hôm nay tụi mình tập trung cày deadline quanh ${campusShort} đúng không? Tớ gợi ý ghé The Coffee House nhé, bàn rộng, wifi mạnh lại vô số ổ cắm điện!`, isAi: true },
-        { id: 3, sender: 'Hoàng Nam (K51)', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100', text: 'Chào Vy và cả nhà! Tớ vừa xong ca học ở A101 nè, đang ôm laptop đuối quá. Duyệt quán AI gợi ý luôn nha!' },
+        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Chào ${name} & team! Hôm nay tụi mình tập trung cày deadline quanh ${campusShort} đúng không? Tớ gợi ý ghé The Coffee House nhé, bàn rộng, wifi mạnh lại vô số ổ cắm điện!`, isAi: true },
+        { id: 3, sender: 'Hoàng Nam (K51)', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100', text: `Chào ${name} và cả nhà! Tớ vừa xong ca học ở A101 nè, đang ôm laptop đuối quá. Duyệt quán AI gợi ý luôn nha!` },
         { id: 4, sender: 'Phương Anh (K52)', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100', text: 'Dạ em chào anh chị! Cho em cày chung với, deadline Microeconomics tối nay nộp LMS rồi 😭 Quán đó wifi mạnh không ạ?' }
       ];
     } else if (purpose === 'tam-chuyen') {
       initialMsgs = [
         { id: 1, text: `🎉 Nhóm Cafe & Tám chuyện tại ${campusShort} đã ghép thành công!`, isSystem: true },
         { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Hello cả nhà! Trưa nay gặp nhau đi cafe hay ghé quán nào chill chill quanh ${campusShort} đây? Tầm giá ${budget} ghé quán Cà Phê Trứng hoặc The Coffee House đều hợp gu nè!`, isAi: true },
-        { id: 3, sender: 'Minh Thảo (K50)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100', text: 'Hi Vy! Vừa học xong căng thẳng quá, đi cafe ngồi tám chuyện xả stress đi mọi người ơi!' }
+        { id: 3, sender: 'Minh Thảo (K50)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100', text: `Hi ${name}! Vừa học xong căng thẳng quá, đi cafe ngồi tám chuyện xả stress đi mọi người ơi!` }
       ];
     } else if (purpose === 'ngoai-ngu') {
       initialMsgs = [
         { id: 1, text: `🎉 Nhóm Luyện Speaking Ngoại ngữ tại ${campusShort} đã ghép nối!`, isSystem: true },
         { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Hello everyone! Today we practice English Speaking around ${campusShort}. Ghé Cà Phê Trứng Bưu Điện không gian yên tĩnh dễ nói chuyện lắm nè!`, isAi: true },
-        { id: 3, sender: 'Đức Anh (K51)', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', text: 'Hi Vy! Long time no see. Let us grab a coffee and practice IELTS Speaking Part 2 today!' }
+        { id: 3, sender: 'Đức Anh (K51)', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', text: `Hi ${name}! Long time no see. Let us grab a coffee and practice IELTS Speaking Part 2 today!` }
       ];
     } else {
       initialMsgs = [
         { id: 1, text: `🎉 Nhóm Thử Món & Săn Quán Mới tại ${campusShort} đã tạo thành công!`, isSystem: true },
         { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Chào cạ cứng! Hôm nay tụi mình đi săn món hot trend nào quanh khu vực ${campusShort} đây? Tầm ngân sách ${budget} có Cơm Tấm Ba Cường ngon xỉu nè!`, isAi: true },
-        { id: 3, sender: 'Thanh Trúc (K52)', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', text: 'Chào Vy! Bụng tớ đang réo liên hồi nè, chốt kèo đi ăn liền thôi!' }
+        { id: 3, sender: 'Thanh Trúc (K52)', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', text: `Chào ${name}! Bụng tớ đang réo liên hồi nè, chốt kèo đi ăn liền thôi!` }
       ];
     }
 
@@ -155,7 +176,6 @@ export default function LunchMateApp() {
     setActiveTab('chat');
   };
 
-  // TÍNH NĂNG TỰ HỦY CUỘC HẸN / XÓA NHÓM CHAT (TƯƠNG TỰ MESSENGER)
   const handleLeaveAndClearGroup = () => {
     if (window.confirm("Bạn có chắc chắn muốn hủy cuộc hẹn và xóa nhóm trò chuyện này không?")) {
       setGroupMessages([]);
@@ -169,7 +189,7 @@ export default function LunchMateApp() {
 
     const shareMsg = {
       id: Date.now(),
-      sender: 'Khánh Vy',
+      sender: studentName || 'Bạn',
       text: `📍 Mình gợi ý nhóm mình ghé địa điểm này nè:\n📌 ${selectedPlaceForNav.name} (${selectedPlaceForNav.type})\n💰 Tầm giá: ~${selectedPlaceForNav.price}\n📝 Note: ${selectedPlaceForNav.desc}`,
       isMe: true,
       isPlaceCard: true,
@@ -187,20 +207,18 @@ export default function LunchMateApp() {
     if (!groupInput.trim()) return;
 
     const userText = groupInput;
-    setGroupMessages(prev => [...prev, { id: Date.now(), sender: 'Khánh Vy', text: userText, isMe: true }]);
+    setGroupMessages(prev => [...prev, { id: Date.now(), sender: studentName || 'Bạn', text: userText, isMe: true }]);
     setGroupInput('');
 
     setIsAiTyping(true);
     setTimeout(() => {
-      let aiReply = `🤖 LunchMate Bot: Tớ thấy địa điểm Vy đề xuất hoặc quán The Coffee House sát ${selectedCampus.split('-')[0]} là chuẩn bài nhất cho nhóm mình luôn á!`;
+      let aiReply = `🤖 LunchMate Bot: Tớ thấy địa điểm ${studentName || 'bạn'} đề xuất hoặc quán The Coffee House sát ${selectedCampus.split('-')[0]} là chuẩn bài nhất cho nhóm mình luôn á!`;
       const lower = userText.toLowerCase();
 
       if (purpose === 'deadline' || lower.includes('deadline') || lower.includes('học') || lower.includes('wifi') || lower.includes('ổ cắm')) {
-        aiReply = `🤖 LunchMate Bot: Cày deadline thì ghé The Coffee House hoặc Highlands nha Vy! Ổ cắm điện ở đây bố trí tận bàn, wifi khỏe cân tốt làm bài nhóm luôn!`;
+        aiReply = `🤖 LunchMate Bot: Cày deadline thì ghé The Coffee House hoặc Highlands nha ${studentName}! Ổ cắm điện ở đây bố trí tận bàn, wifi khỏe cân tốt làm bài nhóm luôn!`;
       } else if (purpose === 'ngoai-ngu' || lower.includes('english') || lower.includes('speaking')) {
-        aiReply = `🤖 LunchMate Bot: Great idea Vy! Let's meet up and speak English together. The egg coffee spot near post office is super cozy!`;
-      } else if (purpose === 'tam-chuyen') {
-        aiReply = `🤖 LunchMate Bot: Chuẩn bài luôn Vy ơi! Vừa uống cafe vừa tám chuyện giải tỏa căng thẳng sau ca học là nhất rồi!`;
+        aiReply = `🤖 LunchMate Bot: Great idea ${studentName}! Let's meet up and speak English together. The egg coffee spot near post office is super cozy!`;
       }
 
       setGroupMessages(prev => [...prev, { id: Date.now() + 1, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: aiReply, isAi: true }]);
@@ -212,6 +230,7 @@ export default function LunchMateApp() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [groupMessages, isAiTyping]);
 
+  // 1. MÀN HÌNH ĐĂNG NHẬP
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-900 flex justify-center items-center font-sans p-4">
@@ -282,6 +301,7 @@ export default function LunchMateApp() {
     );
   }
 
+  // 2. MÀN HÌNH CHÍNH
   return (
     <div className="min-h-screen bg-slate-900 flex justify-center font-sans">
       <div className="w-full max-w-md bg-white min-h-screen flex flex-col shadow-2xl relative pb-16 overflow-hidden">
@@ -296,7 +316,7 @@ export default function LunchMateApp() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full border border-orange-100">
-              K52 - UEH
+              {studentCohort} - UEH
             </span>
             <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" className="w-7 h-7 rounded-full object-cover border border-orange-400" alt="Avatar" />
           </div>
@@ -453,7 +473,7 @@ export default function LunchMateApp() {
               {chatSubView === 'menu' && (
                 <div className="p-5 space-y-6">
                   <div className="text-center py-2">
-                    <h1 className="text-lg font-black text-slate-800">Xin chào Khánh Vy! Chọn cuộc trò chuyện:</h1>
+                    <h1 className="text-lg font-black text-slate-800">Xin chào {studentName || 'bạn'}! Chọn cuộc trò chuyện:</h1>
                   </div>
 
                   <div onClick={() => { if(groupMessages.length === 0) handleStartMatch(); else setChatSubView('group'); }} className="p-6 rounded-3xl bg-pink-100/60 border border-pink-200 text-center space-y-3 cursor-pointer hover:shadow-md transition">
@@ -484,7 +504,6 @@ export default function LunchMateApp() {
                       </h3>
                     </div>
 
-                    {/* NÚT TỰ HỦY CUỘC HẸN & XÓA CHAT NHÓM */}
                     <button 
                       onClick={handleLeaveAndClearGroup}
                       title="Hủy cuộc hẹn & Xóa chat"
@@ -526,18 +545,19 @@ export default function LunchMateApp() {
             </div>
           )}
 
-          {/* TAB 5: CÁ NHÂN */}
+          {/* TAB 5: CÁ NHÂN (TỰ ĐỘNG CẬP NHẬT TÊN THEO EMAIL CỦA BẠN) */}
           {activeTab === 'profile' && (
             <div className="p-5 space-y-6">
               <div className="text-center space-y-2 pt-2">
                 <img 
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" 
-                  alt="Khánh Vy" 
+                  alt="Avatar Sinh viên" 
                   className="w-20 h-20 rounded-full object-cover mx-auto shadow-sm"
                 />
                 <div>
-                  <h2 className="font-extrabold text-slate-800 text-2xl tracking-tight">Khánh Vy</h2>
-                  <p className="text-xs font-semibold text-slate-400 mt-0.5">K52 - Khoa Kinh tế UEH</p>
+                  <h2 className="font-extrabold text-slate-800 text-2xl tracking-tight">{studentName || 'Sinh viên UEH'}</h2>
+                  <p className="text-xs font-semibold text-slate-400 mt-0.5">{studentCohort} - Sinh viên Đại học UEH</p>
+                  <p className="text-[11px] text-orange-600 font-medium mt-1">{emailInput}</p>
                 </div>
               </div>
 
