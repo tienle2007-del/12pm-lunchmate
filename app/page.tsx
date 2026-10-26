@@ -3,17 +3,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Home, Globe, Heart, MessageSquare, User, Clock, MapPin, 
-  Send, ArrowLeft, Bot, Search, Utensils, Coffee, Laptop, Smile, Footprints, Bike, Bus, Share2, Lock, Mail, LogOut, CheckCircle2, ChevronRight, Bookmark, ShieldCheck, Trash2
+  Send, ArrowLeft, Bot, Search, Utensils, Coffee, Laptop, Smile, Footprints, Bike, Bus, Share2, Lock, Mail, LogOut, CheckCircle2, ChevronRight, Bookmark, ShieldCheck, Trash2, Navigation
 } from 'lucide-react';
 
 export default function LunchMateApp() {
-  // Authentication State (ĐỂ TRỐNG ĐỂ NGƯỜI DÙNG TỰ NHẬP)
+  // Authentication State
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  // Tên hiển thị & Khóa học trích xuất tự động từ Email
+  // Tên hiển thị & Khóa học
   const [studentName, setStudentName] = useState('');
   const [studentCohort, setStudentCohort] = useState('K52');
 
@@ -42,7 +42,9 @@ export default function LunchMateApp() {
     { id: 'V', name: 'Cơ sở V - Võ Thị Sáu (Q.3)', district: 'Q.3' }
   ];
 
+  // DANH SÁCH ĐỊA ĐIỂM ĐA DẠNG THEO TỪNG QUẬN / CAMPUS
   const allPlaces = [
+    // KHU VỰC QUẬN 3 (GẦN CS A, CS V)
     { 
       id: 1, 
       name: 'The Coffee House - Trần Cao Vân', 
@@ -78,6 +80,19 @@ export default function LunchMateApp() {
     },
     { 
       id: 4, 
+      name: 'Bún Thịt Nướng Chị Tuyền', 
+      type: 'Ăn trưa bình dân', 
+      district: 'Q.3', 
+      price: '35k', 
+      desc: 'Thịt nướng đậm đà, chả gióm giòn rụm, đông sinh viên UEH.',
+      walk: 'Từ CS A đi bộ vào hẻm Nguyễn Đình Chiểu 3 phút.',
+      bike: 'Chạy xe máy 1 phút vào hẻm, có chỗ giữ xe miễn phí.',
+      bus: 'Dừng trạm Nguyễn Đình Chiểu đi bộ 2 phút.'
+    },
+
+    // KHU VỰC QUẬN 10 (GẦN CS B, CS C)
+    { 
+      id: 5, 
       name: 'Highlands Coffee N2TP', 
       type: 'Cà phê & Deadline', 
       district: 'Q.10', 
@@ -86,6 +101,43 @@ export default function LunchMateApp() {
       walk: 'Băng qua vạch sang đường đối diện cổng CS B.',
       bike: 'Gửi xe hầm CS B rồi sang đường.',
       bus: 'Các tuyến bus đi qua N2TP dừng ngay trước quán.'
+    },
+    { 
+      id: 6, 
+      name: 'Gà Rán Cấp Cấp - Đào Duy Từ', 
+      type: 'Ăn nhanh & Tám chuyện', 
+      district: 'Q.10', 
+      price: '25k', 
+      desc: 'Gà giòn cay xè, nước ngọt refill thỏa thích gần CS B.',
+      walk: 'Rẽ phải từ cổng CS B đi bộ 3 phút vào đường Đào Duy Từ.',
+      bike: 'Chạy xe 1 phút, gửi xe trước cửa quán.',
+      bus: 'Xuống trạm Nguyễn Tri Phương đi bộ 2 phút.'
+    },
+
+    // KHU VỰC QUẬN 1 (GẦN CS E)
+    { 
+      id: 7, 
+      name: 'Katinat Nguyễn Văn Thủ', 
+      type: 'Cà phê & Chill', 
+      district: 'Q.1', 
+      price: '50k', 
+      desc: 'View ngã tư xịn xò, trà sữa ô long đậm vị sát CS E.',
+      walk: 'Đi bộ từ CS E tầm 20m ngay góc đường.',
+      bike: 'Gửi xe ngay bãi xe CS E rồi bước sang.',
+      bus: 'Bus 03, 31 dừng ngay Nguyễn Văn Thủ.'
+    },
+
+    // KHU VỰC BÌNH CHÁNH (GẦN CS N)
+    { 
+      id: 8, 
+      name: 'Urban Station CS N', 
+      type: 'Cà phê & Bàn rộng', 
+      district: 'Bình Chánh', 
+      price: '35k', 
+      desc: 'Khuôn viên xanh mát rộng rãi nội khu Campus N.',
+      walk: 'Ngay trong khuôn viên CS N, đi bộ 1 phút từ sảnh chính.',
+      bike: 'Gửi xe bãi CS N.',
+      bus: 'Tuyến bus 102 dừng ngay cổng CS N.'
     }
   ];
 
@@ -98,6 +150,16 @@ export default function LunchMateApp() {
     { id: 'mon-moi', label: 'Thử món & Quán mới', sub: 'Săn quán hot sinh viên', icon: Utensils, bg: 'bg-amber-50', text: 'text-amber-700' }
   ];
 
+  // LẤY QUẬN ĐANG CHỌN TỪ CAMPUS
+  const currentDistrict = campuses.find(c => c.name === selectedCampus)?.district || 'Q.3';
+
+  // LỌC ĐỊA ĐIỂM: ĐẶT CÁC ĐỊA ĐIỂM THUỘC QUẬN GẦN BẠN LÊN ĐẦU
+  const filteredPlaces = [...allPlaces].sort((a, b) => {
+    if (a.district === currentDistrict && b.district !== currentDistrict) return -1;
+    if (a.district !== currentDistrict && b.district === currentDistrict) return 1;
+    return 0;
+  });
+
   const getBudgetSuggestions = (b: string) => {
     switch (b) {
       case '25k': return ['Trà sữa kem trứng', 'Cà phê muối', 'Bún riêu bình dân'];
@@ -107,7 +169,6 @@ export default function LunchMateApp() {
     }
   };
 
-  // Xử lý Đăng nhập Mail UEH
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = emailInput.trim().toLowerCase();
@@ -121,8 +182,7 @@ export default function LunchMateApp() {
       return;
     }
 
-    // Tách tên từ email
-    const username = cleanEmail.split('@')[0]; // Ví dụ: "khanhvy.k52"
+    const username = cleanEmail.split('@')[0];
     const parts = username.split('.');
     
     let displayName = parts[0];
@@ -147,27 +207,14 @@ export default function LunchMateApp() {
     if (purpose === 'deadline') {
       initialMsgs = [
         { id: 1, text: `🎉 Nhóm cày deadline tại ${campusShort} đã được ghép nối thành công!`, isSystem: true },
-        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Chào ${name} & team! Hôm nay tụi mình tập trung cày deadline quanh ${campusShort} đúng không? Tớ gợi ý ghé The Coffee House nhé, bàn rộng, wifi mạnh lại vô số ổ cắm điện!`, isAi: true },
-        { id: 3, sender: 'Hoàng Nam (K51)', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100', text: `Chào ${name} và cả nhà! Tớ vừa xong ca học ở A101 nè, đang ôm laptop đuối quá. Duyệt quán AI gợi ý luôn nha!` },
-        { id: 4, sender: 'Phương Anh (K52)', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100', text: 'Dạ em chào anh chị! Cho em cày chung với, deadline Microeconomics tối nay nộp LMS rồi 😭 Quán đó wifi mạnh không ạ?' }
-      ];
-    } else if (purpose === 'tam-chuyen') {
-      initialMsgs = [
-        { id: 1, text: `🎉 Nhóm Cafe & Tám chuyện tại ${campusShort} đã ghép thành công!`, isSystem: true },
-        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Hello cả nhà! Trưa nay gặp nhau đi cafe hay ghé quán nào chill chill quanh ${campusShort} đây? Tầm giá ${budget} ghé quán Cà Phê Trứng hoặc The Coffee House đều hợp gu nè!`, isAi: true },
-        { id: 3, sender: 'Minh Thảo (K50)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100', text: `Hi ${name}! Vừa học xong căng thẳng quá, đi cafe ngồi tám chuyện xả stress đi mọi người ơi!` }
-      ];
-    } else if (purpose === 'ngoai-ngu') {
-      initialMsgs = [
-        { id: 1, text: `🎉 Nhóm Luyện Speaking Ngoại ngữ tại ${campusShort} đã ghép nối!`, isSystem: true },
-        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Hello everyone! Today we practice English Speaking around ${campusShort}. Ghé Cà Phê Trứng Bưu Điện không gian yên tĩnh dễ nói chuyện lắm nè!`, isAi: true },
-        { id: 3, sender: 'Đức Anh (K51)', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', text: `Hi ${name}! Long time no see. Let us grab a coffee and practice IELTS Speaking Part 2 today!` }
+        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Chào ${name} & team! Hôm nay tụi mình tập trung cày deadline quanh ${campusShort} đúng không? Tớ gợi ý ghé địa điểm gần khu vực ${currentDistrict} nha!`, isAi: true },
+        { id: 3, sender: 'Hoàng Nam (K51)', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100', text: `Chào ${name} và cả nhà! Tớ vừa xong ca học ở A101 nè, đang ôm laptop đuối quá. Duyệt quán AI gợi ý luôn nha!` }
       ];
     } else {
       initialMsgs = [
-        { id: 1, text: `🎉 Nhóm Thử Món & Săn Quán Mới tại ${campusShort} đã tạo thành công!`, isSystem: true },
-        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Chào cạ cứng! Hôm nay tụi mình đi săn món hot trend nào quanh khu vực ${campusShort} đây? Tầm ngân sách ${budget} có Cơm Tấm Ba Cường ngon xỉu nè!`, isAi: true },
-        { id: 3, sender: 'Thanh Trúc (K52)', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', text: `Chào ${name}! Bụng tớ đang réo liên hồi nè, chốt kèo đi ăn liền thôi!` }
+        { id: 1, text: `🎉 Nhóm gặp gỡ tại ${campusShort} đã tạo thành công!`, isSystem: true },
+        { id: 2, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: `🤖 LunchMate Bot: Hello cả nhà! Trưa nay tụi mình ghé quán nào gần khu vực ${currentDistrict} đây?`, isAi: true },
+        { id: 3, sender: 'Minh Thảo (K50)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100', text: `Hi ${name}! Ghé địa điểm hot ở Tab Khám phá chọn rồi gửi qua đây nha!` }
       ];
     }
 
@@ -190,7 +237,7 @@ export default function LunchMateApp() {
     const shareMsg = {
       id: Date.now(),
       sender: studentName || 'Bạn',
-      text: `📍 Mình gợi ý nhóm mình ghé địa điểm này nè:\n📌 ${selectedPlaceForNav.name} (${selectedPlaceForNav.type})\n💰 Tầm giá: ~${selectedPlaceForNav.price}\n📝 Note: ${selectedPlaceForNav.desc}`,
+      text: `📍 Mình gợi ý nhóm mình ghé địa điểm này gần campus nè:\n📌 ${selectedPlaceForNav.name} (${selectedPlaceForNav.type})\n💰 Tầm giá: ~${selectedPlaceForNav.price}\n📝 Note: ${selectedPlaceForNav.desc}`,
       isMe: true,
       isPlaceCard: true,
       placeName: selectedPlaceForNav.name
@@ -212,15 +259,7 @@ export default function LunchMateApp() {
 
     setIsAiTyping(true);
     setTimeout(() => {
-      let aiReply = `🤖 LunchMate Bot: Tớ thấy địa điểm ${studentName || 'bạn'} đề xuất hoặc quán The Coffee House sát ${selectedCampus.split('-')[0]} là chuẩn bài nhất cho nhóm mình luôn á!`;
-      const lower = userText.toLowerCase();
-
-      if (purpose === 'deadline' || lower.includes('deadline') || lower.includes('học') || lower.includes('wifi') || lower.includes('ổ cắm')) {
-        aiReply = `🤖 LunchMate Bot: Cày deadline thì ghé The Coffee House hoặc Highlands nha ${studentName}! Ổ cắm điện ở đây bố trí tận bàn, wifi khỏe cân tốt làm bài nhóm luôn!`;
-      } else if (purpose === 'ngoai-ngu' || lower.includes('english') || lower.includes('speaking')) {
-        aiReply = `🤖 LunchMate Bot: Great idea ${studentName}! Let's meet up and speak English together. The egg coffee spot near post office is super cozy!`;
-      }
-
+      let aiReply = `🤖 LunchMate Bot: Tớ thấy địa điểm ${studentName || 'bạn'} đề xuất ở ${currentDistrict} là chuẩn bài nhất cho nhóm mình luôn á!`;
       setGroupMessages(prev => [...prev, { id: Date.now() + 1, sender: 'LunchMate Bot', avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100', text: aiReply, isAi: true }]);
       setIsAiTyping(false);
     }, 1000);
@@ -230,7 +269,6 @@ export default function LunchMateApp() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [groupMessages, isAiTyping]);
 
-  // 1. MÀN HÌNH ĐĂNG NHẬP
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-900 flex justify-center items-center font-sans p-4">
@@ -301,7 +339,6 @@ export default function LunchMateApp() {
     );
   }
 
-  // 2. MÀN HÌNH CHÍNH
   return (
     <div className="min-h-screen bg-slate-900 flex justify-center font-sans">
       <div className="w-full max-w-md bg-white min-h-screen flex flex-col shadow-2xl relative pb-16 overflow-hidden">
@@ -417,7 +454,7 @@ export default function LunchMateApp() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black text-slate-800 uppercase">Khu vực Campus UEH</label>
+                <label className="text-xs font-black text-slate-800 uppercase">Khu vực Campus UEH của bạn</label>
                 <select 
                   value={selectedCampus}
                   onChange={(e) => setSelectedCampus(e.target.value)}
@@ -435,34 +472,72 @@ export default function LunchMateApp() {
             </div>
           )}
 
-          {/* TAB 3: KHÁM PHÁ */}
+          {/* TAB 3: KHÁM PHÁ (TỰ ĐỘNG LỌC ĐỊA ĐIỂM GẦN KHU VỰC DỰA THEO CAMPUS) */}
           {activeTab === 'explore' && (
             <div className="p-5 space-y-4">
               <div>
-                <h1 className="text-xl font-black text-slate-800">Cà phê & Quán ăn hot gần bạn</h1>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 mb-0.5">
+                  <Navigation className="w-3.5 h-3.5" /> Đang ưu tiên địa điểm gần: {selectedCampus.split('-')[0]} ({currentDistrict})
+                </div>
+                <h1 className="text-xl font-black text-slate-800">Cà phê & Quán ăn hot quanh bạn</h1>
                 <p className="text-xs text-slate-500">Chạm vào địa điểm để xem chỉ đường & gửi vào nhóm Chat</p>
               </div>
 
-              <div className="space-y-3">
-                {allPlaces.map((place) => (
-                  <div 
-                    key={place.id} 
-                    onClick={() => setSelectedPlaceForNav(place)}
-                    className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-1.5 hover:shadow-md transition cursor-pointer"
+              {/* BỘ LỌC CƠ SỞ ĐIỀU CHỈNH NHANH */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-[10px] font-bold text-slate-400 uppercase whitespace-nowrap">Đổi Campus:</span>
+                {campuses.map(c => (
+                  <button 
+                    key={c.id} 
+                    onClick={() => setSelectedCampus(c.name)}
+                    className={`px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition ${
+                      selectedCampus === c.name 
+                        ? 'bg-slate-900 text-white shadow-sm' 
+                        : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-bold text-slate-800 text-sm">{place.name}</h3>
-                      <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg">{place.type}</span>
-                    </div>
-                    <p className="text-xs text-slate-500">{place.desc}</p>
-                    <div className="flex justify-between items-center text-[10px] pt-1">
-                      <span className="font-bold text-orange-600">Khu vực: {place.district}</span>
-                      <span className="font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> Xem đường đi ➔
-                      </span>
-                    </div>
-                  </div>
+                    {c.id} ({c.district})
+                  </button>
                 ))}
+              </div>
+
+              <div className="space-y-3">
+                {filteredPlaces.map((place) => {
+                  const isNear = place.district === currentDistrict;
+                  return (
+                    <div 
+                      key={place.id} 
+                      onClick={() => setSelectedPlaceForNav(place)}
+                      className={`p-4 bg-white rounded-2xl border transition cursor-pointer relative overflow-hidden ${
+                        isNear ? 'border-orange-300 shadow-md ring-1 ring-orange-200' : 'border-slate-100 opacity-80'
+                      }`}
+                    >
+                      {isNear && (
+                        <div className="absolute top-0 right-0 bg-orange-500 text-white font-black text-[9px] px-2.5 py-0.5 rounded-bl-xl uppercase tracking-wider">
+                          Gần bạn 🔥
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center pr-12">
+                        <h3 className="font-bold text-slate-800 text-sm">{place.name}</h3>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg">{place.type}</span>
+                        <span className="text-[10px] font-bold text-slate-500">💰 ~{place.price}</span>
+                      </div>
+
+                      <p className="text-xs text-slate-500 mt-1.5">{place.desc}</p>
+                      
+                      <div className="flex justify-between items-center text-[10px] pt-2 border-t border-slate-50 mt-2">
+                        <span className="font-bold text-slate-600">Khu vực: <span className="text-orange-600">{place.district}</span></span>
+                        <span className="font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                          <MapPin className="w-3 h-3" /> Đường đi ➔
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -545,7 +620,7 @@ export default function LunchMateApp() {
             </div>
           )}
 
-          {/* TAB 5: CÁ NHÂN (TỰ ĐỘNG CẬP NHẬT TÊN THEO EMAIL CỦA BẠN) */}
+          {/* TAB 5: CÁ NHÂN */}
           {activeTab === 'profile' && (
             <div className="p-5 space-y-6">
               <div className="text-center space-y-2 pt-2">
@@ -653,7 +728,7 @@ export default function LunchMateApp() {
               </div>
 
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
-                <p className="font-bold text-slate-700">📍 Hướng dẫn di chuyển từ CS A:</p>
+                <p className="font-bold text-slate-700">📍 Hướng dẫn di chuyển từ {selectedCampus.split('-')[0]}:</p>
                 <p className="text-slate-600 leading-relaxed">
                   {navMode === 'walk' && selectedPlaceForNav.walk}
                   {navMode === 'bike' && selectedPlaceForNav.bike}
