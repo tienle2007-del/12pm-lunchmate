@@ -33,7 +33,7 @@ export default function LunchMateApp() {
   const [groupInput, setGroupInput] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
 
-  // DANH SÁCH CƠ SỞ UEH ĐA CẬP NHẬT CHUẨN ĐỊA CHỈ
+  // DANH SÁCH CƠ SỞ UEH
   const campuses = [
     { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu (Q.1)', district: 'Q.1' },
     { id: 'B', name: 'Cơ sở B - Nguyễn Tri Phương (Q.10)', district: 'Q.10' },
@@ -204,12 +204,6 @@ export default function LunchMateApp() {
       setChatSubView('menu');
       setActiveTab('match');
     }
-  };
-
-  // MỞ ĐƯỜNG ĐI TRÊN GOOGLE MAPS
-  const handleOpenGoogleMaps = (placeName: string) => {
-    const query = encodeURIComponent(placeName);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
   };
 
   const handleSharePlaceToChat = () => {
@@ -683,7 +677,7 @@ export default function LunchMateApp() {
 
         </main>
 
-        {/* MODAL XEM ĐƯỜNG ĐI & NÚT MỞ GOOGLE MAPS */}
+        {/* MODAL XEM ĐƯỜNG ĐI & MỞ TRỰC TIẾP GOOGLE MAPS */}
         {selectedPlaceForNav && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center p-0 sm:p-4">
             <div className="bg-white w-full max-w-md rounded-t-3xl p-5 space-y-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom">
@@ -716,13 +710,15 @@ export default function LunchMateApp() {
                 </p>
               </div>
 
-              {/* NÚT MỞ GOOGLE MAPS TRỰC TIẾP */}
-              <button 
-                onClick={() => handleOpenGoogleMaps(selectedPlaceForNav.address || selectedPlaceForNav.name)}
-                className="w-full py-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-2xl border border-sky-200 flex items-center justify-center gap-2 transition"
+              {/* THẺ THẺ THẺ LINK MỞ TRỰC TIẾP GOOGLE MAPS */}
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedPlaceForNav.address || selectedPlaceForNav.name)}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full py-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-2xl border border-sky-200 flex items-center justify-center gap-2 transition no-underline"
               >
                 <ExternalLink className="w-4 h-4" /> Mở vị trí trên Google Maps 🗺️
-              </button>
+              </a>
 
               <button 
                 onClick={handleSharePlaceToChat} 
