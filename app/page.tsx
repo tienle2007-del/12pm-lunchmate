@@ -22,7 +22,7 @@ export default function LunchMateApp() {
   const [matchMode, setMatchMode] = useState<'group' | 'duo'>('group');
   const [purpose, setPurpose] = useState('deadline');
   const [budget, setBudget] = useState('35k');
-  const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.1)');
+  const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.3)');
 
   const [chatSubView, setChatSubView] = useState<'menu' | 'group' | 'direct_list' | 'direct_detail'>('menu');
   const [selectedPlaceForNav, setSelectedPlaceForNav] = useState<any>(null);
@@ -33,9 +33,9 @@ export default function LunchMateApp() {
   const [groupInput, setGroupInput] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
 
-  // DANH SÁCH CƠ SỞ UEH
+  // DANH SÁCH CƠ SỞ UEH (ĐÃ ĐIỀU CHỈNH CƠ SỞ A Ở Q.3)
   const campuses = [
-    { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu (Q.1)', district: 'Q.1' },
+    { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu (Q.3)', district: 'Q.3' },
     { id: 'B', name: 'Cơ sở B - Nguyễn Tri Phương (Q.10)', district: 'Q.10' },
     { id: 'C', name: 'Cơ sở C - 3 Tháng 2 (Q.10)', district: 'Q.10' },
     { id: 'N', name: 'Cơ sở N - Nguyễn Văn Linh (Bình Chánh)', district: 'Bình Chánh' },
@@ -48,21 +48,21 @@ export default function LunchMateApp() {
       id: 1, 
       name: 'The Coffee House - Trần Cao Vân', 
       type: 'Cà phê & Deadline', 
-      district: 'Q.1', 
+      district: 'Q.3', 
       price: '35k', 
-      address: 'The Coffee House Trần Cao Vân Quận 1',
-      desc: 'Không gian rộng rãi, nhiều ổ cắm điện, wifi cực nhanh.',
+      address: 'The Coffee House Trần Cao Vân Quận 3',
+      desc: 'Không gian rộng rãi, nhiều ổ cắm điện, wifi cực nhanh sát Cơ sở A.',
       walk: 'Rẽ trái cổng CS A 100m, đi thẳng đường Trần Cao Vân 2 phút là tới.',
       bike: 'Chạy thẳng Trần Cao Vân 1 phút, gửi xe ngay bãi trước quán.',
-      bus: 'Đón bus 150 dừng trạm Bưu điện Q.1, đi bộ 2 phút.'
+      bus: 'Đón bus 150 dừng trạm Bưu điện Q.3, đi bộ 2 phút.'
     },
     { 
       id: 2, 
       name: 'Cơm Tấm Ba Cường', 
       type: 'Cơm tấm', 
-      district: 'Q.1', 
+      district: 'Q.3', 
       price: '35k', 
-      address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 1',
+      address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 3',
       desc: 'Sườn nướng thơm phức, sát vách Cơ sở A.',
       walk: 'Từ cổng CS A rẽ phải 50m là tới quán.',
       bike: 'Gửi xe tại bãi CS A rồi đi bộ 10 giây.',
@@ -127,7 +127,7 @@ export default function LunchMateApp() {
     { id: 'mon-moi', label: 'Thử món & Quán mới', sub: 'Săn quán hot sinh viên', icon: Utensils, bg: 'bg-amber-50', text: 'text-amber-700' }
   ];
 
-  const currentDistrict = campuses.find(c => c.name === selectedCampus)?.district || 'Q.1';
+  const currentDistrict = campuses.find(c => c.name === selectedCampus)?.district || 'Q.3';
 
   const filteredPlaces = [...allPlaces].sort((a, b) => {
     if (a.district === currentDistrict && b.district !== currentDistrict) return -1;
@@ -710,12 +710,12 @@ export default function LunchMateApp() {
                 </p>
               </div>
 
-              {/* THẺ THẺ THẺ LINK MỞ TRỰC TIẾP GOOGLE MAPS */}
+              {/* LINK MỞ TRỰC TIẾP GOOGLE MAPS */}
               <a 
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedPlaceForNav.address || selectedPlaceForNav.name)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full py-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-2xl border border-sky-200 flex items-center justify-center gap-2 transition no-underline"
+                className="w-full py-3 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-2xl border border-sky-200 flex items-center justify-center gap-2 transition no-underline text-center"
               >
                 <ExternalLink className="w-4 h-4" /> Mở vị trí trên Google Maps 🗺️
               </a>
