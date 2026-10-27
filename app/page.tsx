@@ -3,15 +3,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Home, Globe, Heart, MessageSquare, User, Clock, MapPin, 
-  Send, ArrowLeft, Bot, Search, Utensils, Coffee, Laptop, Smile, Footprints, Bike, Bus, Share2, Lock, Mail, LogOut, CheckCircle2, ChevronRight, Bookmark, ShieldCheck, Trash2, Navigation, ExternalLink, Settings, Phone, Camera, Check, RefreshCw
+  Send, ArrowLeft, Bot, Search, Utensils, Coffee, Laptop, Smile, Footprints, Bike, Bus, Share2, Lock, Mail, LogOut, CheckCircle2, ChevronRight, Bookmark, ShieldCheck, Trash2, Navigation, ExternalLink, Settings, Phone, Camera, Check, RefreshCw, Users, Star, SlidersHorizontal, Trees
 } from 'lucide-react';
 
 export default function LunchMateApp() {
-  // Authentication State (MẬT KHẨU BAN ĐẦU ĐỂ TRỐNG)
+  // Authentication State (MẬT KHẨU BAN ĐẦU ĐỂ TRỐNG HOÀN TOÀN)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [emailInput, setEmailInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState(''); // Để trống hoàn toàn
+  const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
+
+  // Bước chọn cơ sở ban đầu ngay sau khi đăng nhập
+  const [hasSelectedInitialCampus, setHasSelectedInitialCampus] = useState(false);
 
   // Student Profile Data
   const [studentName, setStudentName] = useState('Khánh Vy');
@@ -25,7 +28,6 @@ export default function LunchMateApp() {
   const [activeTab, setActiveTab] = useState('home');
   const [matchMode, setMatchMode] = useState<'duo' | 'group'>('duo');
   const [purpose, setPurpose] = useState('tam-chuyen');
-  const [budget, setBudget] = useState('35k');
   const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.3)');
 
   // Match 1-1 Flow States
@@ -39,16 +41,21 @@ export default function LunchMateApp() {
   const [chatSubView, setChatSubView] = useState<'menu' | 'group_chat' | 'direct_list' | 'direct_chat'>('menu');
   const [selectedDirectUser, setSelectedDirectUser] = useState<any>(null);
 
-  // Explore & Map Modal
+  // Explore Filters & States
+  const [exploreCampus, setExploreCampus] = useState<string>('Cơ sở A - Nguyễn Đình Chiểu');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPriceFilter, setSelectedPriceFilter] = useState<string>('all');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [selectedPlaceForNav, setSelectedPlaceForNav] = useState<any>(null);
 
-  // System Data
+  // System Data - Campuses
   const campuses = [
-    { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu (Q.3)', district: 'Q.3' },
-    { id: 'B', name: 'Cơ sở B - Nguyễn Tri Phương (Q.10)', district: 'Q.10' },
-    { id: 'C', name: 'Cơ sở C - 3 Tháng 2 (Q.10)', district: 'Q.10' },
-    { id: 'N', name: 'Cơ sở N - Nguyễn Văn Linh (Bình Chánh)', district: 'Bình Chánh' },
-    { id: 'H', name: 'Cơ sở H - Hoàng Văn Thụ (Phú Nhuận)', district: 'Phú Nhuận' }
+    { id: 'A', name: 'Cơ sở A - Nguyễn Đình Chiểu', full: 'Cơ sở A - Nguyễn Đình Chiểu (Q.3)', district: 'Q.3' },
+    { id: 'B', name: 'Cơ sở B - Nguyễn Tri Phương', full: 'Cơ sở B - Nguyễn Tri Phương (Q.10)', district: 'Q.10' },
+    { id: 'N', name: 'Cơ sở N - Nguyễn Văn Linh', full: 'Cơ sở N - Nguyễn Văn Linh (Bình Chánh)', district: 'Bình Chánh' },
+    { id: 'C', name: 'Cơ sở C - 3 Tháng 2', full: 'Cơ sở C - 3 Tháng 2 (Q.10)', district: 'Q.10' },
+    { id: 'E', name: 'Cơ sở E - Nguyễn Văn Thủ', full: 'Cơ sở E - Nguyễn Văn Thủ (Q.3)', district: 'Q.3' },
+    { id: 'V', name: 'Cơ sở V - Võ Thị Sáu', full: 'Cơ sở V - Võ Thị Sáu (Q.3)', district: 'Q.3' }
   ];
 
   const candidateUsers = [
@@ -90,36 +97,207 @@ export default function LunchMateApp() {
     }
   ];
 
+  // Danh sách quán ăn, cà phê, công viên đa dạng ĐỦ RATING VÀ BÀN ĂN NHÓM
   const allPlaces = [
+    // KHU VỰC QUẬN 3 (Gần CS A, E, V)
     { 
       id: 1, 
-      name: 'The Coffee House - Trần Cao Vân', 
-      type: 'Cà phê & Deadline', 
+      name: 'Cơm Tấm Ba Cường', 
+      type: 'Cơm tấm', 
+      category: 'com_tam',
+      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
       district: 'Q.3', 
-      price: '35k', 
-      address: 'The Coffee House Trần Cao Vân Quận 3',
-      desc: 'Không gian rộng rãi, nhiều ổ cắm điện, wifi cực nhanh.',
-      walk: 'Rẽ trái cổng CS A 100m, đi thẳng đường Trần Cao Vân 2 phút là tới.'
+      priceNum: 35,
+      priceLabel: '35k', 
+      rating: 4.8,
+      reviewsCount: '120+ sinh viên UEH hay ghé',
+      address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 3',
+      desc: 'Sườn nướng thơm phức, sát vách Cơ sở A UEH.',
+      distText: 'Cách Cơ sở A 50m'
     },
     { 
       id: 2, 
-      name: 'Cơm Tấm Ba Cường', 
-      type: 'Cơm tấm', 
+      name: 'The Coffee House - Trần Cao Vân', 
+      type: 'Cà phê & Deadline', 
+      category: 'cafe',
+      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
       district: 'Q.3', 
-      price: '35k', 
-      address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 3',
-      desc: 'Sườn nướng thơm phức, sát vách Cơ sở A.',
-      walk: 'Từ cổng CS A rẽ phải 50m là tới quán.'
+      priceNum: 45,
+      priceLabel: '45k', 
+      rating: 4.6,
+      reviewsCount: '85+ lượt đánh giá',
+      address: 'The Coffee House Trần Cao Vân Quận 3',
+      desc: 'Không gian rộng rãi, nhiều ổ cắm điện, wifi cực nhanh.',
+      distText: 'Cách Cơ sở A 150m'
     },
     { 
       id: 3, 
+      name: 'Công Viên Tao Đàn', 
+      type: 'Công viên & Chill', 
+      category: 'park',
+      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
+      district: 'Q.3', 
+      priceNum: 0,
+      priceLabel: 'Miễn phí', 
+      rating: 4.9,
+      reviewsCount: '200+ lượt check-in',
+      address: 'Công viên Tao Đàn Quận 3',
+      desc: 'Nhiều cây xanh mát mẻ, thích hợp mua trà sữa ra ngồi hóng mát tám chuyện.',
+      distText: 'Cách Cơ sở A 500m'
+    },
+    { 
+      id: 4, 
+      name: 'Trà Sữa Phượng Hoàng', 
+      type: 'Trà sữa', 
+      category: 'tra_sua',
+      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
+      district: 'Q.3', 
+      priceNum: 20,
+      priceLabel: '20k', 
+      rating: 4.7,
+      reviewsCount: '310+ món ngon rẻ',
+      address: 'Trà sữa Phượng Hoàng Nguyễn Tri Phương Quận 10',
+      desc: 'Trà sữa đậm vị trà, topping trân châu ngon rẻ đúng chuẩn sinh viên.',
+      distText: 'Cách Cơ sở A 800m'
+    },
+    { 
+      id: 5, 
+      name: 'Bún Đậu Ngõ Nhỏ Phố Nhỏ', 
+      type: 'Bún đậu', 
+      category: 'bun_dau',
+      campusGroup: 'Cơ sở E - Nguyễn Văn Thủ',
+      district: 'Q.3', 
+      priceNum: 40,
+      priceLabel: '40k', 
+      rating: 4.5,
+      reviewsCount: '60+ sinh viên khen',
+      address: 'Bún đậu Ngõ Nhỏ Phố Nhỏ Nguyễn Đình Chiểu Quận 3',
+      desc: 'Mắm tôm pha ngon chuẩn vị Bắc, chả cốm chiên giòn rụm.',
+      distText: 'Cách Cơ sở E 200m'
+    },
+
+    // KHU VỰC QUẬN 10 (Gần CS B, CS C)
+    { 
+      id: 6, 
+      name: 'Căn Tin B2 UEH', 
+      type: 'Cơm tấm & Căn tin', 
+      category: 'com_tam',
+      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
+      district: 'Q.10', 
+      priceNum: 30,
+      priceLabel: '30k', 
+      rating: 4.9,
+      reviewsCount: '500+ sinh viên ăn mỗi ngày',
+      address: 'Đại học Kinh tế TP.HCM Cơ sở B 279 Nguyễn Tri Phương Quận 10',
+      desc: 'Món ăn thay đổi theo ngày, ngon lành sạch sẽ nằm ngay trong trường.',
+      distText: 'Tại Cơ sở B'
+    },
+    { 
+      id: 7, 
       name: 'Highlands Coffee N2TP', 
       type: 'Cà phê & Deadline', 
+      category: 'cafe',
+      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
       district: 'Q.10', 
-      price: '35k', 
+      priceNum: 39,
+      priceLabel: '39k', 
+      rating: 4.6,
+      reviewsCount: '150+ nhóm học tập',
       address: 'Highlands Coffee Nguyễn Tri Phương Quận 10',
       desc: 'Đối diện CS B, máy lạnh mát rượi, chỗ ngồi cày bài nhóm.',
-      walk: 'Băng qua vạch sang đường đối diện cổng CS B.'
+      distText: 'Đối diện Cơ sở B'
+    },
+    { 
+      id: 8, 
+      name: 'Bún Đậu A Chảnh', 
+      type: 'Bún đậu', 
+      category: 'bun_dau',
+      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
+      district: 'Q.10', 
+      priceNum: 45,
+      priceLabel: '45k', 
+      rating: 4.8,
+      reviewsCount: '190+ nhóm tụ tập',
+      address: 'Bún đậu A Chảnh Thành Thái Quận 10',
+      desc: 'Mẹt bún đậu đầy đặn, chân giò luộc và nem chua rán thơm phức.',
+      distText: 'Cách Cơ sở B 400m'
+    },
+    { 
+      id: 9, 
+      name: 'Công Viên Lê Thị Riêng', 
+      type: 'Công viên & Chill', 
+      category: 'park',
+      campusGroup: 'Cơ sở C - 3 Tháng 2',
+      district: 'Q.10', 
+      priceNum: 0,
+      priceLabel: 'Miễn phí', 
+      rating: 4.7,
+      reviewsCount: '140+ sinh viên đi dạo',
+      address: 'Công viên Lê Thị Riêng Cách Mạng Tháng 8 Quận 10',
+      desc: 'Khuôn viên hồ nước thoáng mát, thích hợp đi dạo chill sau giờ học.',
+      distText: 'Cách Cơ sở C 600m'
+    },
+
+    // KHU VỰC BÌNH CHÁNH (Gần CS N)
+    { 
+      id: 10, 
+      name: 'Căn tin N1', 
+      type: 'Căn tin sinh viên', 
+      category: 'com_tam',
+      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
+      district: 'Bình Chánh', 
+      priceNum: 35,
+      priceLabel: '35k', 
+      rating: 4.8,
+      reviewsCount: 'Phổ biến nhất Cơ sở N',
+      address: 'Cơ sở N UEH Nguyễn Văn Linh Bình Chánh',
+      desc: 'Không gian rộng rãi, nhiều món ăn hot trend chuẩn sinh viên.',
+      distText: 'Cách Cơ sở N 0m'
+    },
+    { 
+      id: 11, 
+      name: 'Cheers - Cửa Hàng Tiện Lợi', 
+      type: 'Ăn vặt & Tiện lợi', 
+      category: 'an_vat',
+      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
+      district: 'Bình Chánh', 
+      priceNum: 25,
+      priceLabel: '25k', 
+      rating: 4.5,
+      reviewsCount: '90+ ghé nhanh',
+      address: 'Cheers Nguyễn Văn Linh Bình Chánh',
+      desc: 'Máy lạnh 24/7, có sẵn xúc xích, mì ly và bàn ngồi học.',
+      distText: 'Cách Cơ sở N 0m'
+    },
+    { 
+      id: 12, 
+      name: 'Mỳ Cay SEOUL Phạm Hùng', 
+      type: 'Mỳ cay & Ăn vặt', 
+      category: 'an_vat',
+      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
+      district: 'Bình Chánh', 
+      priceNum: 60,
+      priceLabel: '60k', 
+      rating: 4.7,
+      reviewsCount: '110+ nhóm sinh viên',
+      address: 'Mỳ Cay Seoul Phạm Hùng Bình Chánh',
+      desc: 'Mỳ cay 7 cấp độ đậm đà, lẩu kim chi topping ngập tràn.',
+      distText: 'Cách Cơ sở N 3.2km'
+    },
+    { 
+      id: 13, 
+      name: 'Công Viên KDC Mizuki Park', 
+      type: 'Công viên & Chill', 
+      category: 'park',
+      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
+      district: 'Bình Chánh', 
+      priceNum: 0,
+      priceLabel: 'Miễn phí', 
+      rating: 4.9,
+      reviewsCount: '80+ sống ảo',
+      address: 'Mizuki Park Nguyễn Văn Linh Bình Chánh',
+      desc: 'Cảnh quan sông nước cây xanh hiện đại, cực đẹp để chụp ảnh và chill.',
+      distText: 'Cách Cơ sở N 2km'
     }
   ];
 
@@ -140,7 +318,6 @@ export default function LunchMateApp() {
   const [groupInput, setGroupInput] = useState('');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const currentDistrict = campuses.find(c => c.name === selectedCampus)?.district || 'Q.3';
 
   // Handle Login
   const handleLogin = (e: React.FormEvent) => {
@@ -170,14 +347,11 @@ export default function LunchMateApp() {
     const userText = directInput;
     const friendName = selectedDirectUser?.name || 'Thảo Nhi';
 
-    // Thêm tin nhắn của bạn vào khung chat
     setDirectMessages(prev => [...prev, { id: Date.now(), sender: studentName || 'Vy', text: userText, isMe: true }]);
     setDirectInput('');
 
-    // Người bạn đó đang gõ...
     setIsFriendTyping(true);
 
-    // Người bạn đó nhắn tin phản hồi thực sự (Không phải Bot AI)
     setTimeout(() => {
       let friendReply = `Oki nè ${studentName}! Hẹn gặp bạn ở chỗ hẹn nha ☺️`;
       const lower = userText.toLowerCase();
@@ -209,6 +383,29 @@ export default function LunchMateApp() {
 
   const currentCandidate = candidateUsers[currentCandidateIdx % candidateUsers.length];
 
+  // Lọc danh sách địa điểm ở mục Khám Phá
+  const filteredPlaces = allPlaces.filter(place => {
+    const matchCampus = place.campusGroup.includes(exploreCampus.split('-')[0].trim());
+    
+    const matchQuery = searchQuery.trim() === '' || 
+      place.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      place.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      place.type.toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchPrice = true;
+    if (selectedPriceFilter === '25k') matchPrice = place.priceNum <= 25;
+    if (selectedPriceFilter === '40k') matchPrice = place.priceNum <= 40;
+    if (selectedPriceFilter === '50k') matchPrice = place.priceNum <= 50;
+    if (selectedPriceFilter === '100k') matchPrice = place.priceNum <= 100;
+
+    let matchCat = true;
+    if (selectedCategoryFilter !== 'all') {
+      matchCat = place.category === selectedCategoryFilter;
+    }
+
+    return matchCampus && matchQuery && matchPrice && matchCat;
+  });
+
   return (
     <div className="min-h-screen bg-slate-900 flex justify-center font-sans">
       <div className="w-full max-w-md bg-white min-h-screen flex flex-col shadow-2xl relative pb-16 overflow-hidden">
@@ -231,7 +428,7 @@ export default function LunchMateApp() {
           )}
         </header>
 
-        {/* LOGIN SCREEN */}
+        {/* MÀN HÌNH 1: ĐĂNG NHẬP TÀI KHOẢN */}
         {!isLoggedIn ? (
           <div className="flex-1 p-6 flex flex-col justify-center space-y-6 bg-slate-50/50">
             <div className="text-center space-y-2">
@@ -261,7 +458,7 @@ export default function LunchMateApp() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-600">Password (Để trống ban đầu)</label>
+                <label className="text-[11px] font-bold text-slate-600">Password</label>
                 <div className="relative">
                   <input 
                     type="password" 
@@ -287,6 +484,51 @@ export default function LunchMateApp() {
                 Đăng nhập tài khoản UEH 🚀
               </button>
             </form>
+          </div>
+        ) : !hasSelectedInitialCampus ? (
+          /* MÀN HÌNH 2: BƯỚC CHỌN CƠ SỞ BAN ĐẦU NGAY SAU KHI ĐĂNG NHẬP + MỤC GHÉP NHÓM (CỦA HÌNH 1) */
+          <div className="flex-1 p-6 space-y-6 bg-slate-50/50">
+            <div className="space-y-1 pt-2">
+              <h2 className="text-xl font-black text-slate-800">Xin chào {studentName}!</h2>
+              <p className="text-sm font-bold text-slate-700">Bây giờ bạn đang ở đâu?</p>
+            </div>
+
+            <div className="space-y-3">
+              {campuses.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    setExploreCampus(c.name);
+                    setSelectedCampus(c.full);
+                    setHasSelectedInitialCampus(true);
+                  }}
+                  className="w-full p-4 bg-orange-50/60 hover:bg-orange-100 border border-orange-100 rounded-2xl text-left font-bold text-xs text-slate-800 shadow-sm transition flex items-center justify-between"
+                >
+                  <span>{c.name}</span>
+                  <ChevronRight className="w-4 h-4 text-orange-400" />
+                </button>
+              ))}
+            </div>
+
+            {/* BỔ SUNG MỤC TẠO & THAM GIA GHÉP NHÓM TRỰC TIẾP TẠI BƯỚC CHỌN CƠ SỞ BAN ĐẦU */}
+            <div className="p-4 bg-white rounded-3xl border border-slate-100 shadow-sm space-y-3 pt-4">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-orange-500" />
+                <h3 className="font-black text-slate-800 text-xs">Hoặc Tạo / Tham Gia Bàn Ăn Ghép Nhóm</h3>
+              </div>
+              <p className="text-[11px] text-slate-500">Mở bàn ăn đông người cho cả nhóm cùng đi ăn trưa vui vẻ!</p>
+              
+              <button 
+                onClick={() => {
+                  setMatchMode('group');
+                  setActiveTab('match');
+                  setHasSelectedInitialCampus(true);
+                }}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2"
+              >
+                <span>👥 Ghép Nhóm Ăn Trưa Ngay ➔</span>
+              </button>
+            </div>
           </div>
         ) : (
           <main className="flex-1 overflow-y-auto bg-slate-50/50">
@@ -339,7 +581,7 @@ export default function LunchMateApp() {
               </div>
             )}
 
-            {/* TAB 2: KẾT NỐI (LUỒNG KẾT NỐI BẠN BÈ 1-1 CHUYÊN SÂU) */}
+            {/* TAB 2: KẾT NỐI (CÓ CẢ GHÉP ĐÔI 1-1 VÀ MỤC GHÉP NHÓM ĐÔNG NGƯỜI) */}
             {activeTab === 'match' && (
               <div className="p-5 space-y-5">
                 {matchStep === 'filter' && (
@@ -393,7 +635,7 @@ export default function LunchMateApp() {
                         className="w-full text-xs font-bold p-3 bg-white border border-slate-200 rounded-2xl focus:outline-none"
                       >
                         {campuses.map(c => (
-                          <option key={c.id} value={c.name}>{c.name}</option>
+                          <option key={c.id} value={c.full}>{c.full}</option>
                         ))}
                       </select>
                     </div>
@@ -402,8 +644,31 @@ export default function LunchMateApp() {
                       onClick={() => setMatchStep('swiping')} 
                       className="w-full py-3.5 bg-orange-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-orange-500/25 active:scale-95 transition"
                     >
-                      Tìm kiếm bạn ăn trưa 🚀
+                      {matchMode === 'duo' ? 'Tìm kiếm bạn ăn trưa 1-1 🚀' : 'Tham gia Bàn Ăn Nhóm 👥'}
                     </button>
+
+                    {/* MỤC BÀN ĂN GHÉP NHÓM Bổ SUNG PHÍA DƯỚI PHẦN GHÉP ĐÔI 1-1 */}
+                    <div className="p-4 bg-sky-50 rounded-3xl border border-sky-100 space-y-3 mt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-black text-xs text-sky-900">👥 Bàn Ăn Nhóm Đang Mở Quanh Bạn</span>
+                        <span className="text-[10px] bg-sky-200 text-sky-900 px-2 py-0.5 rounded-full font-bold">3 Nhóm online</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="p-3 bg-white rounded-2xl border flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-xs text-slate-800">Nhóm Mỳ Cay Cùng K49</div>
+                            <div className="text-[10px] text-slate-400">11:45 AM • CS N Bình Chánh (Đã có 3/5 bạn)</div>
+                          </div>
+                          <button 
+                            onClick={() => { setActiveTab('chat'); setChatSubView('group_chat'); }}
+                            className="px-3 py-1.5 bg-sky-500 text-white font-bold text-[10px] rounded-xl shadow-sm"
+                          >
+                            Vào bàn
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -523,36 +788,158 @@ export default function LunchMateApp() {
               </div>
             )}
 
-            {/* TAB 3: KHÁM PHÁ (QUÁN ĂN & ĐƯỜNG ĐI MAPS) */}
+            {/* TAB 3: KHÁM PHÁ (CHUẨN 100% THEO HÌNH 2 VỚI ĐỦ BỘ LỌC, RATING & GOOGLE MAPS) */}
             {activeTab === 'explore' && (
               <div className="p-5 space-y-4">
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 mb-0.5">
-                    <Navigation className="w-3.5 h-3.5" /> Quán ngon gần: {selectedCampus.split('-')[0]} ({currentDistrict})
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-black text-orange-600 uppercase">EAT TOGETHER</div>
+                    <h1 className="text-xl font-black text-slate-800">Hôm nay, ăn gì? 😋</h1>
+                    <p className="text-[11px] text-slate-400 font-medium">Quán ngon quanh trường, vừa túi tiền tụi mình.</p>
                   </div>
-                  <h1 className="text-xl font-black text-slate-800">Hôm nay, ăn gì? 😋</h1>
+                  <button 
+                    onClick={() => setHasSelectedInitialCampus(false)}
+                    className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-xl"
+                  >
+                    Đổi CS
+                  </button>
                 </div>
 
-                <div className="space-y-3">
-                  {allPlaces.map((place) => (
-                    <div 
-                      key={place.id} 
-                      onClick={() => setSelectedPlaceForNav(place)}
-                      className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2 hover:shadow-md transition cursor-pointer"
+                {/* THANH TÌM KIẾM TƯƠNG TÁC */}
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Tìm quán cơm, bún, mì, trà sữa quanh UEH..." 
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-sm"
+                  />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <SlidersHorizontal className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
+                </div>
+
+                {/* CHIPS CHỌN NHANH CƠ SỞ (THEO HÌNH 2) */}
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {campuses.map((c) => {
+                    const isSelected = exploreCampus.includes(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => setExploreCampus(c.name)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                          isSelected 
+                            ? 'bg-sky-100 text-sky-800 border-sky-300 shadow-sm' 
+                            : 'bg-white text-slate-600 border-slate-200'
+                        }`}
+                      >
+                        📍 {c.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* BỘ LỌC GIÁ: <25k, <40k, <50k, <100k (THEO HÌNH 2) */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giá</span>
+                  <div className="flex gap-2">
+                    {[
+                      { id: 'all', label: 'Tất cả' },
+                      { id: '25k', label: '<25k' },
+                      { id: '40k', label: '<40k' },
+                      { id: '50k', label: '<50k' },
+                      { id: '100k', label: '<100k' }
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setSelectedPriceFilter(p.id)}
+                        className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition ${
+                          selectedPriceFilter === p.id 
+                            ? 'bg-orange-500 text-white border-orange-500' 
+                            : 'bg-white text-slate-600 border-slate-200'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* BỘ LỌC DANH MỤC: CƠM TẤM, BÚN ĐẬU, TRÀ SỮA, ĂN VẶT, CÀ PHÊ, CÔNG VIÊN (THEO HÌNH 2) */}
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {[
+                    { id: 'all', label: 'Tất cả' },
+                    { id: 'com_tam', label: 'Cơm tấm' },
+                    { id: 'bun_dau', label: 'Bún đậu' },
+                    { id: 'tra_sua', label: 'Trà sữa' },
+                    { id: 'an_vat', label: 'Ăn vặt' },
+                    { id: 'cafe', label: 'Cà phê & Deadline' },
+                    { id: 'park', label: 'Công viên & Chill' }
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategoryFilter(cat.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition border ${
+                        selectedCategoryFilter === cat.id 
+                          ? 'bg-slate-800 text-white border-slate-800' 
+                          : 'bg-white text-slate-600 border-slate-200'
+                      }`}
                     >
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-slate-800 text-sm">{place.name}</h3>
-                        <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-lg">{place.type}</span>
-                      </div>
-                      <p className="text-xs text-slate-500">{place.desc}</p>
-                      <div className="flex justify-between items-center text-[10px] pt-1">
-                        <span className="font-bold text-orange-600">Khu vực: {place.district}</span>
-                        <span className="font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> Đường đi ➔
-                        </span>
-                      </div>
-                    </div>
+                      {cat.label}
+                    </button>
                   ))}
+                </div>
+
+                {/* DANH SÁCH QUÁN NGON GẦN BẠN CÓ ĐIỂM ĐÁNH GIÁ (RATING) */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-black text-slate-800 text-sm">Quán ngon gần bạn</h3>
+                    <span className="text-[10px] text-slate-400 font-bold">Gần nhất ∨</span>
+                  </div>
+
+                  {filteredPlaces.length === 0 ? (
+                    <div className="p-8 text-center bg-white rounded-2xl border text-xs text-slate-400">
+                      Chưa tìm thấy địa điểm phù hợp với bộ lọc này. Bạn thử chọn danh mục hoặc mức giá khác nha!
+                    </div>
+                  ) : (
+                    filteredPlaces.map((place) => (
+                      <div 
+                        key={place.id} 
+                        onClick={() => setSelectedPlaceForNav(place)}
+                        className="p-4 bg-white rounded-3xl border border-slate-100 shadow-sm space-y-2 hover:shadow-md transition cursor-pointer"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-extrabold text-slate-800 text-sm flex items-center gap-1.5">
+                              {place.name}
+                              <span className="text-[10px] font-bold bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 border border-amber-200">
+                                <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" /> {place.rating}
+                              </span>
+                            </h3>
+                            <p className="text-[11px] text-slate-400 font-medium">📍 {place.distText} ({place.district})</p>
+                          </div>
+                          <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-xl">
+                            {place.type}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-slate-500">{place.desc}</p>
+
+                        <div className="p-2 bg-sky-50/60 rounded-xl border border-sky-100 text-[10px] font-bold text-sky-800 flex items-center gap-1">
+                          <span>🔥</span> {place.reviewsCount}
+                        </div>
+
+                        <div className="flex justify-between items-center pt-1 border-t border-slate-50">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block">Giá trung bình</span>
+                            <span className="font-black text-orange-600 text-sm">{place.priceLabel} <span className="text-[10px] font-normal text-slate-400">/ người</span></span>
+                          </div>
+                          <button className="px-3 py-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 text-xs font-bold rounded-xl flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5" /> Chỉ đường Maps ➔
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -924,7 +1311,10 @@ export default function LunchMateApp() {
                       </div>
 
                       <button 
-                        onClick={() => setIsLoggedIn(false)}
+                        onClick={() => {
+                          setIsLoggedIn(false);
+                          setHasSelectedInitialCampus(false);
+                        }}
                         className="w-full py-3 mt-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl border border-red-100 flex items-center justify-center gap-2 transition"
                       >
                         <LogOut className="w-4 h-4" /> Đăng xuất tài khoản
@@ -939,7 +1329,7 @@ export default function LunchMateApp() {
         )}
 
         {/* BOTTOM NAVIGATION BAR */}
-        {isLoggedIn && (
+        {isLoggedIn && hasSelectedInitialCampus && (
           <nav className="bg-slate-900 px-3 py-2 flex justify-between items-center text-white sticky bottom-0 z-20">
             {[
               { id: 'home', label: 'Trang chủ', icon: Home },
@@ -980,6 +1370,17 @@ export default function LunchMateApp() {
                   <p className="text-[11px] text-orange-600 font-bold">{selectedPlaceForNav.type} ({selectedPlaceForNav.district})</p>
                 </div>
                 <button onClick={() => setSelectedPlaceForNav(null)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold">✕</button>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <div className="p-3 bg-slate-50 rounded-2xl border">
+                  <span className="font-bold text-slate-700 block">Mô tả quán:</span>
+                  <span className="text-slate-600">{selectedPlaceForNav.desc}</span>
+                </div>
+                <div className="p-3 bg-orange-50 rounded-2xl border border-orange-100">
+                  <span className="font-bold text-orange-800 block">Vị trí:</span>
+                  <span className="text-orange-900">{selectedPlaceForNav.distText}</span>
+                </div>
               </div>
 
               <a 
