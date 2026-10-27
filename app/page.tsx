@@ -30,6 +30,9 @@ export default function LunchMateApp() {
   const [purpose, setPurpose] = useState('tam-chuyen');
   const [selectedCampus, setSelectedCampus] = useState('Cơ sở A - Nguyễn Đình Chiểu (Q.3)');
 
+  // TRẠNG THÁI KHUNG GIỜ RẢNH TỰ DO LỰA CHỌN
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('11:30 - 12:00');
+
   // Match 1-1 Flow States
   const [matchStep, setMatchStep] = useState<'filter' | 'swiping' | 'requesting' | 'success'>('filter');
   const [currentCandidateIdx, setCurrentCandidateIdx] = useState(0);
@@ -97,397 +100,38 @@ export default function LunchMateApp() {
     }
   ];
 
-  // KHO DỮ LIỆU ĐA DẠNG HƠN 25+ ĐỊA ĐIỂM ĐỦ MỌI PHÂN KHÚC GIÁ VÀ CÁC QUẬN
+  // KHO DỮ LIỆU ĐA DẠNG HƠN 25+ ĐỊA ĐIỂM
   const allPlaces = [
-    // ================= KHU VỰC QUẬN 3 (Gần CS A, E, V) =================
-    // Mức < 25k (Q.3)
-    { 
-      id: 101, 
-      name: 'Bánh Mì Huỳnh Hoa Phân Nhánh Q.3', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
-      district: 'Q.3', 
-      priceNum: 22,
-      priceLabel: '22k', 
-      rating: 4.7,
-      reviewsCount: '210+ món ngon tiện lợi',
-      address: 'Bánh Mì Nguyễn Đình Chiểu Quận 3',
-      desc: 'Bánh mì pa-tê siêu ngon, giòn rụm phục vụ cực nhanh cho tiết học sau.',
-      distText: 'Cách Cơ sở A 100m'
-    },
-    { 
-      id: 102, 
-      name: 'Trà Sữa Phượng Hoàng Q.3', 
-      type: 'Trà sữa', 
-      category: 'tra_sua',
-      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
-      district: 'Q.3', 
-      priceNum: 20,
-      priceLabel: '20k', 
-      rating: 4.8,
-      reviewsCount: '350+ trà sữa giá rẻ',
-      address: 'Trà sữa Phượng Hoàng Nguyễn Tri Phương Quận 3',
-      desc: 'Trà sữa chuẩn đậm vị trà, trân châu dai ngon vừa túi tiền sinh viên.',
-      distText: 'Cách Cơ sở A 200m'
-    },
-    { 
-      id: 103, 
-      name: 'Công Viên Tao Đàn', 
-      type: 'Công viên & Chill', 
-      category: 'park',
-      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
-      district: 'Q.3', 
-      priceNum: 0,
-      priceLabel: 'Miễn phí', 
-      rating: 4.9,
-      reviewsCount: '400+ lượt check-in',
-      address: 'Công viên Tao Đàn Quận 3',
-      desc: 'Rợp bóng cây xanh mát rượi, không gian lý tưởng mua đồ ăn ra ngồi tám chuyện.',
-      distText: 'Cách Cơ sở A 400m'
-    },
-    // Mức < 40k (Q.3)
-    { 
-      id: 104, 
-      name: 'Cơm Tấm Ba Cường', 
-      type: 'Cơm tấm', 
-      category: 'com_tam',
-      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
-      district: 'Q.3', 
-      priceNum: 35,
-      priceLabel: '35k', 
-      rating: 4.8,
-      reviewsCount: '180+ sinh viên UEH hay ghé',
-      address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 3',
-      desc: 'Sườn nướng thơm phức, nước mắm kẹo đậm đà sát vách Cơ sở A.',
-      distText: 'Cách Cơ sở A 50m'
-    },
-    { 
-      id: 105, 
-      name: 'Bún Đậu Ngõ Nhỏ Phố Nhỏ', 
-      type: 'Bún đậu', 
-      category: 'bun_dau',
-      campusGroup: 'Cơ sở E - Nguyễn Văn Thủ',
-      district: 'Q.3', 
-      priceNum: 38,
-      priceLabel: '38k', 
-      rating: 4.6,
-      reviewsCount: '95+ nhóm sinh viên ăn',
-      address: 'Bún đậu Ngõ Nhỏ Nguyễn Đình Chiểu Quận 3',
-      desc: 'Mẹt bún đậu đầy đặn, mắm tôm pha ngon chuẩn vị Bắc.',
-      distText: 'Cách Cơ sở E 150m'
-    },
-    { 
-      id: 106, 
-      name: 'Trà Trái Cây Đô Đô Q.3', 
-      type: 'Trà sữa', 
-      category: 'tra_sua',
-      campusGroup: 'Cơ sở V - Võ Thị Sáu',
-      district: 'Q.3', 
-      priceNum: 30,
-      priceLabel: '30k', 
-      rating: 4.7,
-      reviewsCount: '130+ ly giải nhiệt',
-      address: 'Trà trái cây Võ Thị Sáu Quận 3',
-      desc: 'Trà đào cam sả và trà mảng cầu tươi ngon giải nhiệt ngày nắng nóng.',
-      distText: 'Cách Cơ sở V 100m'
-    },
-    // Mức < 50k & < 100k (Q.3)
-    { 
-      id: 107, 
-      name: 'The Coffee House - Trần Cao Vân', 
-      type: 'Cà phê & Deadline', 
-      category: 'cafe',
-      campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu',
-      district: 'Q.3', 
-      priceNum: 45,
-      priceLabel: '45k', 
-      rating: 4.6,
-      reviewsCount: '220+ cày deadline',
-      address: 'The Coffee House Trần Cao Vân Quận 3',
-      desc: 'Không gian rộng rãi, máy lạnh mát rượi, nhiều ổ cắm điện học nhóm.',
-      distText: 'Cách Cơ sở A 150m'
-    },
-    { 
-      id: 108, 
-      name: 'Quán Cơm Mẹ Nấu VTS', 
-      type: 'Cơm tấm', 
-      category: 'com_tam',
-      campusGroup: 'Cơ sở V - Võ Thị Sáu',
-      district: 'Q.3', 
-      priceNum: 42,
-      priceLabel: '42k', 
-      rating: 4.8,
-      reviewsCount: '110+ món ăn gia đình',
-      address: 'Cơm Mẹ Nấu Võ Thị Sáu Quận 3',
-      desc: 'Món ăn gia đình chuẩn vị Bắc - Trung - Nam, thực đơn đổi mới mỗi ngày.',
-      distText: 'Cách Cơ sở V 200m'
-    },
-    { 
-      id: 109, 
-      name: 'Mỳ Cay Sasin Võ Thị Sáu', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở V - Võ Thị Sáu',
-      district: 'Q.3', 
-      priceNum: 55,
-      priceLabel: '55k', 
-      rating: 4.7,
-      reviewsCount: '170+ thách thức cấp độ',
-      address: 'Mỳ Cay Sasin Võ Thị Sáu Quận 3',
-      desc: 'Mỳ cay 7 cấp độ hải sản bò kim chi cực kì hấp dẫn cho buổi trưa.',
-      distText: 'Cách Cơ sở V 300m'
-    },
+    // QUẬN 3
+    { id: 101, name: 'Bánh Mì Huỳnh Hoa Phân Nhánh Q.3', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu', district: 'Q.3', priceNum: 22, priceLabel: '22k', rating: 4.7, reviewsCount: '210+ món ngon tiện lợi', address: 'Bánh Mì Nguyễn Đình Chiểu Quận 3', desc: 'Bánh mì pa-tê siêu ngon, giòn rụm phục vụ cực nhanh cho tiết học sau.', distText: 'Cách Cơ sở A 100m' },
+    { id: 102, name: 'Trà Sữa Phượng Hoàng Q.3', type: 'Trà sữa', category: 'tra_sua', campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu', district: 'Q.3', priceNum: 20, priceLabel: '20k', rating: 4.8, reviewsCount: '350+ trà sữa giá rẻ', address: 'Trà sữa Phượng Hoàng Nguyễn Tri Phương Quận 3', desc: 'Trà sữa chuẩn đậm vị trà, trân châu dai ngon vừa túi tiền sinh viên.', distText: 'Cách Cơ sở A 200m' },
+    { id: 103, name: 'Công Viên Tao Đàn', type: 'Công viên & Chill', category: 'park', campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu', district: 'Q.3', priceNum: 0, priceLabel: 'Miễn phí', rating: 4.9, reviewsCount: '400+ lượt check-in', address: 'Công viên Tao Đàn Quận 3', desc: 'Rợp bóng cây xanh mát rượi, không gian lý tưởng mua đồ ăn ra ngồi tám chuyện.', distText: 'Cách Cơ sở A 400m' },
+    { id: 104, name: 'Cơm Tấm Ba Cường', type: 'Cơm tấm', category: 'com_tam', campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu', district: 'Q.3', priceNum: 35, priceLabel: '35k', rating: 4.8, reviewsCount: '180+ sinh viên UEH hay ghé', address: 'Cơm Tấm Ba Cường Nguyễn Đình Chiểu Quận 3', desc: 'Sườn nướng thơm phức, nước mắm kẹo đậm đà sát vách Cơ sở A.', distText: 'Cách Cơ sở A 50m' },
+    { id: 105, name: 'Bún Đậu Ngõ Nhỏ Phố Nhỏ', type: 'Bún đậu', category: 'bun_dau', campusGroup: 'Cơ sở E - Nguyễn Văn Thủ', district: 'Q.3', priceNum: 38, priceLabel: '38k', rating: 4.6, reviewsCount: '95+ nhóm sinh viên ăn', address: 'Bún đậu Ngõ Nhỏ Nguyễn Đình Chiểu Quận 3', desc: 'Mẹt bún đậu đầy đặn, mắm tôm pha ngon chuẩn vị Bắc.', distText: 'Cách Cơ sở E 150m' },
+    { id: 106, name: 'Trà Trái Cây Đô Đô Q.3', type: 'Trà sữa', category: 'tra_sua', campusGroup: 'Cơ sở V - Võ Thị Sáu', district: 'Q.3', priceNum: 30, priceLabel: '30k', rating: 4.7, reviewsCount: '130+ ly giải nhiệt', address: 'Trà trái cây Võ Thị Sáu Quận 3', desc: 'Trà đào cam sả và trà mảng cầu tươi ngon giải nhiệt ngày nắng nóng.', distText: 'Cách Cơ sở V 100m' },
+    { id: 107, name: 'The Coffee House - Trần Cao Vân', type: 'Cà phê & Deadline', category: 'cafe', campusGroup: 'Cơ sở A - Nguyễn Đình Chiểu', district: 'Q.3', priceNum: 45, priceLabel: '45k', rating: 4.6, reviewsCount: '220+ cày deadline', address: 'The Coffee House Trần Cao Vân Quận 3', desc: 'Không gian rộng rãi, máy lạnh mát rượi, nhiều ổ cắm điện học nhóm.', distText: 'Cách Cơ sở A 150m' },
+    { id: 108, name: 'Quán Cơm Mẹ Nấu VTS', type: 'Cơm tấm', category: 'com_tam', campusGroup: 'Cơ sở V - Võ Thị Sáu', district: 'Q.3', priceNum: 42, priceLabel: '42k', rating: 4.8, reviewsCount: '110+ món ăn gia đình', address: 'Cơm Mẹ Nấu Võ Thị Sáu Quận 3', desc: 'Món ăn gia đình chuẩn vị Bắc - Trung - Nam, thực đơn đổi mới mỗi ngày.', distText: 'Cách Cơ sở V 200m' },
+    { id: 109, name: 'Mỳ Cay Sasin Võ Thị Sáu', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở V - Võ Thị Sáu', district: 'Q.3', priceNum: 55, priceLabel: '55k', rating: 4.7, reviewsCount: '170+ thách thức cấp độ', address: 'Mỳ Cay Sasin Võ Thị Sáu Quận 3', desc: 'Mỳ cay 7 cấp độ hải sản bò kim chi cực kì hấp dẫn cho buổi trưa.', distText: 'Cách Cơ sở V 300m' },
 
-    // ================= KHU VỰC QUẬN 10 (Gần CS B, CS C) =================
-    // Mức < 25k (Q.10)
-    { 
-      id: 201, 
-      name: 'Bánh Mì Mẹ Bột B2', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
-      district: 'Q.10', 
-      priceNum: 20,
-      priceLabel: '20k', 
-      rating: 4.6,
-      reviewsCount: '150+ bánh mì nóng giòn',
-      address: 'Bánh mì Nguyễn Tri Phương Quận 10',
-      desc: 'Bánh mì chả heo quay nóng giòn giá siêu tiết kiệm.',
-      distText: 'Ngay cổng Cơ sở B'
-    },
-    { 
-      id: 202, 
-      name: 'Trà Sữa TocoToco N2TP', 
-      type: 'Trà sữa', 
-      category: 'tra_sua',
-      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
-      district: 'Q.10', 
-      priceNum: 25,
-      priceLabel: '25k', 
-      rating: 4.5,
-      reviewsCount: '280+ món trần châu bô',
-      address: 'TocoToco Nguyễn Tri Phương Quận 10',
-      desc: 'Trà sữa trân châu hoàng gia giảm giá ưu đãi liên tục cho UEH.',
-      distText: 'Đối diện Cơ sở B'
-    },
-    { 
-      id: 203, 
-      name: 'Công Viên Lê Thị Riêng', 
-      type: 'Công viên & Chill', 
-      category: 'park',
-      campusGroup: 'Cơ sở C - 3 Tháng 2',
-      district: 'Q.10', 
-      priceNum: 0,
-      priceLabel: 'Miễn phí', 
-      rating: 4.8,
-      reviewsCount: '320+ dạo mát chill',
-      address: 'Công viên Lê Thị Riêng Cách Mạng Tháng 8 Quận 10',
-      desc: 'Hồ nước cây xanh thoáng đãng, nhiều ghế đá nghỉ trưa thoáng mát.',
-      distText: 'Cách Cơ sở C 500m'
-    },
-    // Mức < 40k (Q.10)
-    { 
-      id: 204, 
-      name: 'Căn Tin B2 UEH', 
-      type: 'Cơm tấm', 
-      category: 'com_tam',
-      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
-      district: 'Q.10', 
-      priceNum: 30,
-      priceLabel: '30k', 
-      rating: 4.9,
-      reviewsCount: '500+ lượt ăn trưa',
-      address: 'Đại học Kinh tế TP.HCM Cơ sở B Nguyễn Tri Phương Quận 10',
-      desc: 'Cơm trưa căn tin trường sạch sẽ, nhiều món mặn ngon canh nóng.',
-      distText: 'Tại Cơ sở B'
-    },
-    { 
-      id: 205, 
-      name: 'Highlands Coffee N2TP', 
-      type: 'Cà phê & Deadline', 
-      category: 'cafe',
-      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
-      district: 'Q.10', 
-      priceNum: 39,
-      priceLabel: '39k', 
-      rating: 4.7,
-      reviewsCount: '260+ hẹn hò cày bài',
-      address: 'Highlands Coffee Nguyễn Tri Phương Quận 10',
-      desc: 'Chỗ ngồi điều hòa mát rượi đối diện CS B, cày deadline cực đã.',
-      distText: 'Đối diện Cơ sở B'
-    },
-    { 
-      id: 206, 
-      name: 'Bún Đậu A Chảnh Thành Thái', 
-      type: 'Bún đậu', 
-      category: 'bun_dau',
-      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
-      district: 'Q.10', 
-      priceNum: 40,
-      priceLabel: '40k', 
-      rating: 4.8,
-      reviewsCount: '310+ nhóm tụ tập',
-      address: 'Bún đậu A Chảnh Thành Thái Quận 10',
-      desc: 'Mẹt bún đậu tá lả chả cốm nem chua rán thơm nức mũi.',
-      distText: 'Cách Cơ sở B 350m'
-    },
-    // Mức < 50k & < 100k (Q.10)
-    { 
-      id: 207, 
-      name: 'Hủ Tiếu Nam Vang Thành Đạt 3/2', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở C - 3 Tháng 2',
-      district: 'Q.10', 
-      priceNum: 50,
-      priceLabel: '50k', 
-      rating: 4.8,
-      reviewsCount: '190+ hủ tiếu ngập thịt',
-      address: 'Hủ tiếu Nam Vang Thành Đạt 3 Tháng 2 Quận 10',
-      desc: 'Nước dùng ngọt đậm đà từ xương, tôm thịt tươi ngon ngập tràn.',
-      distText: 'Cách Cơ sở C 100m'
-    },
-    { 
-      id: 208, 
-      name: 'Katinat Saigon Kafe N2TP', 
-      type: 'Cà phê & Deadline', 
-      category: 'cafe',
-      campusGroup: 'Cơ sở B - Nguyễn Tri Phương',
-      district: 'Q.10', 
-      priceNum: 55,
-      priceLabel: '55k', 
-      rating: 4.9,
-      reviewsCount: '410+ góc sống ảo',
-      address: 'Katinat Nguyễn Tri Phương Quận 10',
-      desc: 'View đẹp sang xịn mịn, trà bơ & trà sương sáo mảng cầu siêu hot.',
-      distText: 'Cách Cơ sở B 200m'
-    },
+    // QUẬN 10
+    { id: 201, name: 'Bánh Mì Mẹ Bột B2', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở B - Nguyễn Tri Phương', district: 'Q.10', priceNum: 20, priceLabel: '20k', rating: 4.6, reviewsCount: '150+ bánh mì nóng giòn', address: 'Bánh mì Nguyễn Tri Phương Quận 10', desc: 'Bánh mì chả heo quay nóng giòn giá siêu tiết kiệm.', distText: 'Ngay cổng Cơ sở B' },
+    { id: 202, name: 'Trà Sữa TocoToco N2TP', type: 'Trà sữa', category: 'tra_sua', campusGroup: 'Cơ sở B - Nguyễn Tri Phương', district: 'Q.10', priceNum: 25, priceLabel: '25k', rating: 4.5, reviewsCount: '280+ món trân châu bô', address: 'TocoToco Nguyễn Tri Phương Quận 10', desc: 'Trà sữa trân châu hoàng gia giảm giá ưu đãi liên tục cho UEH.', distText: 'Đối diện Cơ sở B' },
+    { id: 203, name: 'Công Viên Lê Thị Riêng', type: 'Công viên & Chill', category: 'park', campusGroup: 'Cơ sở C - 3 Tháng 2', district: 'Q.10', priceNum: 0, priceLabel: 'Miễn phí', rating: 4.8, reviewsCount: '320+ dạo mát chill', address: 'Công viên Lê Thị Riêng Cách Mạng Tháng 8 Quận 10', desc: 'Hồ nước cây xanh thoáng đãng, nhiều ghế đá nghỉ trưa thoáng mát.', distText: 'Cách Cơ sở C 500m' },
+    { id: 204, name: 'Căn Tin B2 UEH', type: 'Cơm tấm', category: 'com_tam', campusGroup: 'Cơ sở B - Nguyễn Tri Phương', district: 'Q.10', priceNum: 30, priceLabel: '30k', rating: 4.9, reviewsCount: '500+ lượt ăn trưa', address: 'Đại học Kinh tế TP.HCM Cơ sở B Nguyễn Tri Phương Quận 10', desc: 'Cơm trưa căn tin trường sạch sẽ, nhiều món mặn ngon canh nóng.', distText: 'Tại Cơ sở B' },
+    { id: 205, name: 'Highlands Coffee N2TP', type: 'Cà phê & Deadline', category: 'cafe', campusGroup: 'Cơ sở B - Nguyễn Tri Phương', district: 'Q.10', priceNum: 39, priceLabel: '39k', rating: 4.7, reviewsCount: '260+ hẹn hò cày bài', address: 'Highlands Coffee Nguyễn Tri Phương Quận 10', desc: 'Chỗ ngồi điều hòa mát rượi đối diện CS B, cày deadline cực đã.', distText: 'Đối diện Cơ sở B' },
+    { id: 206, name: 'Bún Đậu A Chảnh Thành Thái', type: 'Bún đậu', category: 'bun_dau', campusGroup: 'Cơ sở B - Nguyễn Tri Phương', district: 'Q.10', priceNum: 40, priceLabel: '40k', rating: 4.8, reviewsCount: '310+ nhóm tụ tập', address: 'Bún đậu A Chảnh Thành Thái Quận 10', desc: 'Mẹt bún đậu tá lả chả cốm nem chua rán thơm nức mũi.', distText: 'Cách Cơ sở B 350m' },
+    { id: 207, name: 'Hủ Tiếu Nam Vang Thành Đạt 3/2', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở C - 3 Tháng 2', district: 'Q.10', priceNum: 50, priceLabel: '50k', rating: 4.8, reviewsCount: '190+ hủ tiếu ngập thịt', address: 'Hủ tiếu Nam Vang Thành Đạt 3 Tháng 2 Quận 10', desc: 'Nước dùng ngọt đậm đà từ xương, tôm thịt tươi ngon ngập tràn.', distText: 'Cách Cơ sở C 100m' },
+    { id: 208, name: 'Katinat Saigon Kafe N2TP', type: 'Cà phê & Deadline', category: 'cafe', campusGroup: 'Cơ sở B - Nguyễn Tri Phương', district: 'Q.10', priceNum: 55, priceLabel: '55k', rating: 4.9, reviewsCount: '410+ góc sống ảo', address: 'Katinat Nguyễn Tri Phương Quận 10', desc: 'View đẹp sang xịn mịn, trà bơ & trà sương sáo mảng cầu siêu hot.', distText: 'Cách Cơ sở B 200m' },
 
-    // ================= KHU VỰC BÌNH CHÁNH (Gần CS N) =================
-    // Mức < 25k (Bình Chánh)
-    { 
-      id: 301, 
-      name: 'Cheers - Cửa Hàng Tiện Lợi CS N', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 20,
-      priceLabel: '20k', 
-      rating: 4.6,
-      reviewsCount: '250+ ghé mua mì ly',
-      address: 'Cheers Nguyễn Văn Linh Bình Chánh',
-      desc: 'Mì ly, xúc xích nướng, bánh bao nóng phục vụ 24/7.',
-      distText: 'Tại Cơ sở N'
-    },
-    { 
-      id: 302, 
-      name: 'Trà Sữa Nhà Làm Mizuki', 
-      type: 'Trà sữa', 
-      category: 'tra_sua',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 22,
-      priceLabel: '22k', 
-      rating: 4.7,
-      reviewsCount: '140+ ly trà sữa ngon',
-      address: 'Trà sữa Mizuki Nguyễn Văn Linh Bình Chánh',
-      desc: 'Trà sữa thạch củ năng khúc bạch tự làm thơm béo ngọt nhẹ.',
-      distText: 'Cách Cơ sở N 500m'
-    },
-    { 
-      id: 303, 
-      name: 'Công Viên KDC Mizuki Park', 
-      type: 'Công viên & Chill', 
-      category: 'park',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 0,
-      priceLabel: 'Miễn phí', 
-      rating: 4.9,
-      reviewsCount: '290+ check in cảnh quan',
-      address: 'Mizuki Park Nguyễn Văn Linh Bình Chánh',
-      desc: 'Cảnh quan kênh đào Nhật Bản thoáng mát, chụp ảnh cực đẹp.',
-      distText: 'Cách Cơ sở N 1.2km'
-    },
-    // Mức < 40k (Bình Chánh)
-    { 
-      id: 304, 
-      name: 'Căn Tin N1 UEH', 
-      type: 'Cơm tấm', 
-      category: 'com_tam',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 35,
-      priceLabel: '35k', 
-      rating: 4.8,
-      reviewsCount: '600+ sinh viên ăn mỗi ngày',
-      address: 'Cơ sở N UEH Nguyễn Văn Linh Bình Chánh',
-      desc: 'Không gian siêu rộng, cơm chiên Dương Châu, bún thịt nướng cực ngon.',
-      distText: 'Tại Cơ sở N'
-    },
-    { 
-      id: 305, 
-      name: 'Cà Phê Muối Chú Long Bình Chánh', 
-      type: 'Cà phê & Deadline', 
-      category: 'cafe',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 30,
-      priceLabel: '30k', 
-      rating: 4.7,
-      reviewsCount: '180+ vị cà phê béo đậm',
-      address: 'Cà phê muối Phạm Hùng Bình Chánh',
-      desc: 'Lớp kem muối béo mặn kết hợp cà phê phin đậm đà tỉnh táo học tập.',
-      distText: 'Cách Cơ sở N 800m'
-    },
-    { 
-      id: 306, 
-      name: 'Bún Đậu Mẹt Tre Phạm Hùng', 
-      type: 'Bún đậu', 
-      category: 'bun_dau',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 39,
-      priceLabel: '39k', 
-      rating: 4.6,
-      reviewsCount: '110+ mẹt đầy đặn',
-      address: 'Bún đậu Phạm Hùng Bình Chánh',
-      desc: 'Đậu hũ chiên lướt ván giòn tan, dồi sụn nướng thơm phức.',
-      distText: 'Cách Cơ sở N 1.5km'
-    },
-    // Mức < 50k & < 100k (Bình Chánh)
-    { 
-      id: 307, 
-      name: 'Quán YOROXOT Mỳ Hàn Quốc', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 48,
-      priceLabel: '48k', 
-      rating: 4.8,
-      reviewsCount: '160+ món Hàn tụ tập',
-      address: 'YOROXOT Bình Chánh',
-      desc: 'Tokbokki phô mai, cơm trộn kimbap chuẩn vị Hàn Quốc ấm cúng.',
-      distText: 'Cách Cơ sở N 1.8km'
-    },
-    { 
-      id: 308, 
-      name: 'Mỳ Cay SEOUL Phạm Hùng', 
-      type: 'Ăn vặt', 
-      category: 'an_vat',
-      campusGroup: 'Cơ sở N - Nguyễn Văn Linh',
-      district: 'Bình Chánh', 
-      priceNum: 58,
-      priceLabel: '58k', 
-      rating: 4.9,
-      reviewsCount: '340+ nhóm sinh viên gank',
-      address: 'Mỳ Cay Seoul Phạm Hùng Bình Chánh',
-      desc: 'Lẩu kim chi mỳ cay hải sản bò Mỹ ngập tràn topping.',
-      distText: 'Cách Cơ sở N 2.5km'
-    }
+    // BÌNH CHÁNH
+    { id: 301, name: 'Cheers - Cửa Hàng Tiện Lợi CS N', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 20, priceLabel: '20k', rating: 4.6, reviewsCount: '250+ ghé mua mì ly', address: 'Cheers Nguyễn Văn Linh Bình Chánh', desc: 'Mì ly, xúc xích nướng, bánh bao nóng phục vụ 24/7.', distText: 'Tại Cơ sở N' },
+    { id: 302, name: 'Trà Sữa Nhà Làm Mizuki', type: 'Trà sữa', category: 'tra_sua', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 22, priceLabel: '22k', rating: 4.7, reviewsCount: '140+ ly trà sữa ngon', address: 'Trà sữa Mizuki Nguyễn Văn Linh Bình Chánh', desc: 'Trà sữa thạch củ năng khúc bạch tự làm thơm béo ngọt nhẹ.', distText: 'Cách Cơ sở N 500m' },
+    { id: 303, name: 'Công Viên KDC Mizuki Park', type: 'Công viên & Chill', category: 'park', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 0, priceLabel: 'Miễn phí', rating: 4.9, reviewsCount: '290+ check in cảnh quan', address: 'Mizuki Park Nguyễn Văn Linh Bình Chánh', desc: 'Cảnh quan kênh đào Nhật Bản thoáng mát, chụp ảnh cực đẹp.', distText: 'Cách Cơ sở N 1.2km' },
+    { id: 304, name: 'Căn Tin N1 UEH', type: 'Cơm tấm', category: 'com_tam', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 35, priceLabel: '35k', rating: 4.8, reviewsCount: '600+ sinh viên ăn mỗi ngày', address: 'Cơ sở N UEH Nguyễn Văn Linh Bình Chánh', desc: 'Không gian siêu rộng, cơm chiên Dương Châu, bún thịt nướng cực ngon.', distText: 'Tại Cơ sở N' },
+    { id: 305, name: 'Cà Phê Muối Chú Long Bình Chánh', type: 'Cà phê & Deadline', category: 'cafe', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 30, priceLabel: '30k', rating: 4.7, reviewsCount: '180+ vị cà phê béo đậm', address: 'Cà phê muối Phạm Hùng Bình Chánh', desc: 'Lớp kem muối béo mặn kết hợp cà phê phin đậm đà tỉnh táo học tập.', distText: 'Cách Cơ sở N 800m' },
+    { id: 306, name: 'Bún Đậu Mẹt Tre Phạm Hùng', type: 'Bún đậu', category: 'bun_dau', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 39, priceLabel: '39k', rating: 4.6, reviewsCount: '110+ mẹt đầy đặn', address: 'Bún đậu Phạm Hùng Bình Chánh', desc: 'Đậu hũ chiên lướt ván giòn tan, dồi sụn nướng thơm phức.', distText: 'Cách Cơ sở N 1.5km' },
+    { id: 307, name: 'Quán YOROXOT Mỳ Hàn Quốc', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 48, priceLabel: '48k', rating: 4.8, reviewsCount: '160+ món Hàn tụ tập', address: 'YOROXOT Bình Chánh', desc: 'Tokbokki phô mai, cơm trộn kimbap chuẩn vị Hàn Quốc ấm cúng.', distText: 'Cách Cơ sở N 1.8km' },
+    { id: 308, name: 'Mỳ Cay SEOUL Phạm Hùng', type: 'Ăn vặt', category: 'an_vat', campusGroup: 'Cơ sở N - Nguyễn Văn Linh', district: 'Bình Chánh', priceNum: 58, priceLabel: '58k', rating: 4.9, reviewsCount: '340+ nhóm sinh viên gank', address: 'Mỳ Cay Seoul Phạm Hùng Bình Chánh', desc: 'Lẩu kim chi mỳ cay hải sản bò Mỹ ngập tràn topping.', distText: 'Cách Cơ sở N 2.5km' }
   ];
 
   // Chat States
@@ -675,7 +319,7 @@ export default function LunchMateApp() {
             </form>
           </div>
         ) : !hasSelectedInitialCampus ? (
-          /* MÀN HÌNH 2: BƯỚC CHỌN CƠ SỞ BAN ĐẦU NGAY SAU KHI ĐĂNG NHẬP + MỤC GHÉP NHÓM (THEO ẢNH 1) */
+          /* MÀN HÌNH 2: BƯỚC CHỌN CƠ SỞ BAN ĐẦU NGAY SAU KHI ĐĂNG NHẬP + MỤC GHÉP NHÓM */
           <div className="flex-1 p-6 space-y-6 bg-slate-50/50">
             <div className="space-y-1 pt-2">
               <h2 className="text-xl font-black text-slate-800">Xin chào {studentName}!</h2>
@@ -770,7 +414,7 @@ export default function LunchMateApp() {
               </div>
             )}
 
-            {/* TAB 2: KẾT NỐI (CÓ CẢ GHÉP ĐÔI 1-1 VÀ GHÉP NHÓM ĐÔNG NGƯỜI) */}
+            {/* TAB 2: KẾT NỐI (KHUNG GIỜ RẢNH TỰ DO BẤM CHỌN KHIẾN BẠN HOÀN TOÀN HÀI LÒNG) */}
             {activeTab === 'match' && (
               <div className="p-5 space-y-5">
                 {matchStep === 'filter' && (
@@ -786,11 +430,22 @@ export default function LunchMateApp() {
                       </div>
                     </div>
 
+                    {/* KHUNG GIỜ RẢNH TÙY Ý LỰA CHỌN */}
                     <div className="space-y-2">
-                      <label className="text-xs font-black text-slate-800 uppercase">Khung giờ rảnh</label>
+                      <label className="text-xs font-black text-slate-800 uppercase">Khung giờ rảnh (Chọn giờ bạn muốn)</label>
                       <div className="grid grid-cols-3 gap-2">
-                        {['11:00 - 11:30', '11:30 - 12:00', '12:00 - 12:30'].map((t, i) => (
-                          <button key={i} className={`py-2 text-[10px] font-bold rounded-xl border ${i === 1 ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-slate-600 border-slate-200'}`}>{t}</button>
+                        {['11:00 - 11:30', '11:30 - 12:00', '12:00 - 12:30', '12:30 - 13:00', '13:00 - 13:30', 'Tự do / Khác'].map((t) => (
+                          <button 
+                            key={t}
+                            onClick={() => setSelectedTimeSlot(t)}
+                            className={`py-2 text-[10px] font-bold rounded-xl border transition ${
+                              selectedTimeSlot === t 
+                                ? 'bg-orange-500 text-white border-orange-500 shadow-md scale-105' 
+                                : 'bg-white text-slate-600 border-slate-200 hover:bg-orange-50'
+                            }`}
+                          >
+                            {t}
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -833,7 +488,7 @@ export default function LunchMateApp() {
                       onClick={() => setMatchStep('swiping')} 
                       className="w-full py-3.5 bg-orange-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-orange-500/25 active:scale-95 transition"
                     >
-                      {matchMode === 'duo' ? 'Tìm kiếm bạn ăn trưa 1-1 🚀' : 'Tham gia Bàn Ăn Nhóm 👥'}
+                      {matchMode === 'duo' ? `Tìm kiếm bạn ăn trưa (${selectedTimeSlot}) 🚀` : 'Tham gia Bàn Ăn Nhóm 👥'}
                     </button>
 
                     {/* BÀN ĂN GHÉP NHÓM PHÍA DƯỚI GHÉP ĐÔI 1-1 */}
@@ -896,7 +551,7 @@ export default function LunchMateApp() {
                         <div className="p-3 bg-slate-50 rounded-2xl space-y-1 text-[11px]">
                           <div><strong>CLB sinh hoạt:</strong> {currentCandidate.club}</div>
                           <div><strong>Ngôn ngữ:</strong> {currentCandidate.languages}</div>
-                          <div><strong>Rảnh hôm nay:</strong> <span className="text-orange-600 font-bold">{currentCandidate.freeTime}</span></div>
+                          <div><strong>Rảnh hôm nay:</strong> <span className="text-orange-600 font-bold">{selectedTimeSlot}</span></div>
                         </div>
 
                         <button 
@@ -927,7 +582,7 @@ export default function LunchMateApp() {
 
                     <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 max-w-xs mx-auto text-left space-y-1 text-xs">
                       <div className="font-bold text-orange-800">📍 Kế hoạch cuộc hẹn:</div>
-                      <div className="text-slate-600">Thời gian: 11:30 AM</div>
+                      <div className="text-slate-600">Khung giờ: {selectedTimeSlot}</div>
                       <div className="text-slate-600">Địa điểm: Căn tin B2 ({selectedCampus.split('-')[0]})</div>
                     </div>
 
@@ -958,7 +613,7 @@ export default function LunchMateApp() {
 
                     <div className="p-3 bg-slate-50 rounded-2xl text-left text-xs space-y-1 border">
                       <div className="font-bold text-slate-700">📅 Lịch hẹn:</div>
-                      <div>• Thời gian: 11:45 AM</div>
+                      <div>• Thời gian: {selectedTimeSlot}</div>
                       <div>• Địa điểm: Căn tin B2</div>
                     </div>
 
@@ -977,7 +632,7 @@ export default function LunchMateApp() {
               </div>
             )}
 
-            {/* TAB 3: KHÁM PHÁ (CHUẨN 100% THEO ẢNH 2 ĐỦ BUDGET VÀ ĐA DẠNG MÓN) */}
+            {/* TAB 3: KHÁM PHÁ (ĐÃ ĐA DẠNG HƠN 25+ ĐỊA ĐIỂM) */}
             {activeTab === 'explore' && (
               <div className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
@@ -1007,7 +662,7 @@ export default function LunchMateApp() {
                   <SlidersHorizontal className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
                 </div>
 
-                {/* CHIPS CHỌN NHANH CƠ SỞ (THEO HÌNH 2) */}
+                {/* CHIPS CHỌN NHANH CƠ SỞ */}
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
                   {campuses.map((c) => {
                     const isSelected = exploreCampus.includes(c.id);
@@ -1027,7 +682,7 @@ export default function LunchMateApp() {
                   })}
                 </div>
 
-                {/* BỘ LỌC MỨC GIÁ BUDGET: <25k, <40k, <50k, <100k */}
+                {/* BỘ LỌC MỨC GIÁ BUDGET */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giá</span>
                   <div className="flex gap-2">
@@ -1053,7 +708,7 @@ export default function LunchMateApp() {
                   </div>
                 </div>
 
-                {/* BỘ LỌC DANH MỤC LỌC NHANH */}
+                {/* BỘ LỌC DANH MỤC */}
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
                   {[
                     { id: 'all', label: 'Tất cả' },
@@ -1078,7 +733,7 @@ export default function LunchMateApp() {
                   ))}
                 </div>
 
-                {/* DANH SÁCH ĐỊA ĐIỂM DẠNG RATING ⭐ VÀ ĐƯỜNG ĐI MAPS */}
+                {/* DANH SÁCH ĐỊA ĐIỂM */}
                 <div className="space-y-3 pt-2">
                   <div className="flex justify-between items-center">
                     <h3 className="font-black text-slate-800 text-sm">Quán ngon gần bạn ({filteredPlaces.length} địa điểm)</h3>
@@ -1133,7 +788,7 @@ export default function LunchMateApp() {
               </div>
             )}
 
-            {/* TAB 4: TIN NHẮN (TRÒ CHUYỆN 1-1 BẠN BÈ PHẢN HỒI THẬT & AI TRONG CHAT NHÓM) */}
+            {/* TAB 4: TIN NHẮN */}
             {activeTab === 'chat' && (
               <div className="flex flex-col h-full min-h-[500px]">
                 {chatSubView === 'menu' && (
@@ -1201,7 +856,7 @@ export default function LunchMateApp() {
                   </div>
                 )}
 
-                {/* KHUNG CHAT 1-1 VỚI BẠN BÈ (CÓ PHẢN HỒI THỰC SỰ TỪ BẠN ĐÓ) */}
+                {/* KHUNG CHAT 1-1 VỚI BẠN BÈ */}
                 {chatSubView === 'direct_chat' && (
                   <div className="flex flex-col h-[520px] bg-white">
                     <div className="p-3 border-b bg-slate-50 space-y-2">
@@ -1216,7 +871,7 @@ export default function LunchMateApp() {
                       </div>
 
                       <div className="p-2.5 bg-orange-500 text-white rounded-2xl text-[11px] font-bold flex justify-between items-center shadow-sm">
-                        <span>📅 Lịch hẹn: 11:30 AM - Căn tin B2</span>
+                        <span>📅 Lịch hẹn: {selectedTimeSlot} - Căn tin B2</span>
                         <span className="bg-white/20 px-2 py-0.5 rounded-full text-[9px]">Còn 15 phút</span>
                       </div>
                     </div>
@@ -1472,7 +1127,7 @@ export default function LunchMateApp() {
                   </div>
                 )}
 
-                {/* CÀI ĐẶT & BẢO MẬT BÊN TRONG */}
+                {/* CÀI ĐẶT & BẢO MẬT */}
                 {profileSubView === 'settings' && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
